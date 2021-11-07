@@ -87,19 +87,13 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, who){
 
                    print(paste0("updated: '", old_db_val, "' in '",id ,"' database"))
 
-                   # who <- ifelse(exists(session),
-                   #               ifelse(!is.null(session$user), as.character(session$user), "testy1"),
-                   #               "testy2")
-                   # print(paste("mod", session$user, "who", who))
-
-                   # update deltas db and DT proxy
                    changes <- crudr::update_deltas_tbl(db_conn_pool = db_conn_pool,
                                                        db_tbl_name = crudr::deltas_tbl_name(id),
                                                        old_value = old_db_val,
                                                        update_value = update_value,
                                                        value_rowuid = as.character(value_rowuid),
                                                        value_colname = value_colname,
-                                                       who = who #session$user
+                                                       who = who
                    )
 
                    # update parent env

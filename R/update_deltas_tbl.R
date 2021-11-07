@@ -27,7 +27,6 @@ update_deltas_tbl <- function(db_conn_pool,
                                   field = value_colname,
                                   to = as.character(update_value),
                                   from = as.character(old_value),
-                                  # who = ifelse(is.null(who), "test_user", Sys.info()[['user']]),
                                   who = ifelse(is.null(who), Sys.info()[['user']], who),
                                   when = lubridate::now())
   pool::dbAppendTable(db_conn_pool, db_tbl_name, to_deltas_tbl)
