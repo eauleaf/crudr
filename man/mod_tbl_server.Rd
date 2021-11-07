@@ -5,7 +5,7 @@
 \title{shiny server module gets database data from db specified by db_conn_pool connection and the db table name specified in 'id',
 server module manages and syncs changes between the UI DT, in-server-memory tbl, and backend db}
 \usage{
-mod_tbl_server(id, key_col, db_conn_pool)
+mod_tbl_server(id, key_col, db_conn_pool, who)
 }
 \arguments{
 \item{id}{primary table name - namespace ID corresponding to the 'primary_tbl_name' in the database}

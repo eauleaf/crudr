@@ -27,6 +27,8 @@ update_deltas_tbl(
 \item{value_colname}{see update_primary_tbl() definitions}
 
 \item{value_rowuid}{see update_primary_tbl() definitions}
+
+\item{who}{string: the username responsible for the change}
 }
 \value{
 an in-memory copy of the data just appended to the tracking table

@@ -15,7 +15,7 @@
 #' shinyApp(ui, server)
 #' }
 
-mod_tbl_server <- function(id, key_col, db_conn_pool){
+mod_tbl_server <- function(id, key_col, db_conn_pool, who){
   moduleServer(id,
                module = function(input, output, session){
 
@@ -87,7 +87,10 @@ mod_tbl_server <- function(id, key_col, db_conn_pool){
 
                    print(paste0("updated: '", old_db_val, "' in '",id ,"' database"))
 
-                   print(paste("mod", session$user))
+                   # who <- ifelse(exists(session),
+                   #               ifelse(!is.null(session$user), as.character(session$user), "testy1"),
+                   #               "testy2")
+                   # print(paste("mod", session$user, "who", who))
 
                    # update deltas db and DT proxy
                    changes <- crudr::update_deltas_tbl(db_conn_pool = db_conn_pool,
@@ -96,7 +99,7 @@ mod_tbl_server <- function(id, key_col, db_conn_pool){
                                                        update_value = update_value,
                                                        value_rowuid = as.character(value_rowuid),
                                                        value_colname = value_colname,
-                                                       who = session$user
+                                                       who = who #session$user
                    )
 
                    # update parent env

@@ -7,6 +7,7 @@
 #' @param update_value the value that overwrote 'old_value' in the primary table
 #' @param value_colname see update_primary_tbl() definitions
 #' @param value_rowuid see update_primary_tbl() definitions
+#' @param who string: the username responsible for the change
 #'
 #' @return an in-memory copy of the data just appended to the tracking table
 #' @export
@@ -21,6 +22,7 @@ update_deltas_tbl <- function(db_conn_pool,
                               who = NULL
 ){
 
+  print(who)
   to_deltas_tbl <- tibble::tibble(uid = value_rowuid,
                                   field = value_colname,
                                   to = as.character(update_value),
