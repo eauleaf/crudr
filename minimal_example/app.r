@@ -14,12 +14,16 @@ con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
 # dataset must have a unique identifier column and unique identifiers must be chars, not numeric
 iris <- dplyr::mutate(iris, unique_id = paste0('uid_',dplyr::row_number()))
 cdr_create_new_db_tbls(db_conn_pool = con, db_tbl = iris)
-print(here::here('iris.db')) # location of database
-print(dbListTables(con)) # tables in database
+locn <- print(here::here('iris.db')) # location of database
+dbs <- print(paste(dbListTables(con), collapse = ', ')) # tables in database
 ##############################################
 
 
-header <- dashboardHeader(title = 'Minimal Example')
+header <- dashboardHeader(title = 'Minimal Example',
+                          dropdownMenu(messageItem('', paste('DB locn:',locn)),
+                                       messageItem('', paste('DB tbls:',dbs))
+                                       )
+                          )
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
