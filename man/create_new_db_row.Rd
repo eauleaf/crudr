@@ -2,10 +2,7 @@
 % Please edit documentation in R/create_new_db_row.R
 \name{create_new_db_row}
 \alias{create_new_db_row}
-\title{create new observation line in primary production database table and insert a unique
-ID in the unique observation identifier line
-Note: This function is only for the primary table. It is not used on the deltas table.
-Note2: Function does not clean or control 'new_uid' inputs. Run your cleaning code before passing in 'new_uid'}
+\title{Appends new row to primary table}
 \usage{
 create_new_db_row(db_conn_pool, db_tbl_name, new_uid, uid_column_name)
 }

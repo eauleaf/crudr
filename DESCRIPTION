@@ -1,6 +1,6 @@
 Package: crudr
 Title: Simplifies create CRUD tasks including tracking changes of db table
-Version: 0.0.0.9004
+Version: 0.0.0.9005
 Authors@R: 
     person("eau", "leaf", email = "eau.leaf@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).

@@ -2,8 +2,7 @@
 % Please edit documentation in R/combine_prim_delt_tbls.r
 \name{combine_prim_delt_tbls}
 \alias{combine_prim_delt_tbls}
-\title{join data from db_tbl and recent change values from db_tbl_deltas tables
-function used in 'mod_tbl_server' eventReactive}
+\title{Join primary and deltas tables}
 \usage{
 combine_prim_delt_tbls(db_tbl, db_tbl_deltas, key_col)
 }
@@ -19,6 +18,7 @@ the joined tables; all of db_tbl, and who-when information from the deltas table
 }
 \description{
 join data from db_tbl and recent change values from db_tbl_deltas tables
+(attaches most recent 'who' and 'when' form deltas table to primary table)
 function used in 'mod_tbl_server' eventReactive
 }
 \examples{

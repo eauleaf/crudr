@@ -2,9 +2,7 @@
 % Please edit documentation in R/shiny_mod_tbl_ui.r
 \name{mod_tbl_ui}
 \alias{mod_tbl_ui}
-\title{User interface portion of the crudr module
-Presents an ajax datatable in a shiny UI
-Used exclusively on 'mod_tbl_server' object}
+\title{UI module for a DT from the Server module}
 \usage{
 mod_tbl_ui(id, tbl_type = "db_tbl")
 }

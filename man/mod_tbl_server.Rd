@@ -2,10 +2,9 @@
 % Please edit documentation in R/shiny_mod_tbl_server.r
 \name{mod_tbl_server}
 \alias{mod_tbl_server}
-\title{shiny server module gets database data from db specified by db_conn_pool connection and the db table name specified in 'id',
-server module manages and syncs changes between the UI DT, in-server-memory tbl, and backend db}
+\title{Server module to present and control db tables}
 \usage{
-mod_tbl_server(id, key_col, db_conn_pool, session)
+mod_tbl_server(id, key_col, db_conn_pool, session, open_sesame = F)
 }
 \arguments{
 \item{id}{primary table name - namespace ID corresponding to the 'primary_tbl_name' in the database}
@@ -13,16 +12,21 @@ mod_tbl_server(id, key_col, db_conn_pool, session)
 \item{key_col}{name of the unique ID column in the db table (table must have a unique ID column with unique IDs)}
 
 \item{db_conn_pool}{db connection from package 'pool'}
+
+\item{session}{}
+
+\item{open_sesame}{T or F to make editable the primary table from the module}
 }
 \value{
 returns DT reactive tables to the shiny ui environment
 }
 \description{
-shiny server module gets database data from db specified by db_conn_pool connection and the db table name specified in 'id',
-server module manages and syncs changes between the UI DT, in-server-memory tbl, and backend db
+Shiny server module gets database tables from db specified by pool connection and the db table name specified in 'id',
+server module manages and syncs changes between the UI DT, in-server-memory tbl, and backend db,
+for the primary as well as the corresponding deltas table (and joined table if it's presented in the UI)
 }
 \examples{
-\dontrun{
+\dontrun{ see folder
 db_conn_pool <- easydbconn::get_db_con(friendly_db_name) # ensure db is already setup with crudr::create_new_db_tbls()
 server <- function(input, output, session){mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
 shinyApp(ui, server)

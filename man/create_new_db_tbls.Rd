@@ -2,13 +2,7 @@
 % Please edit documentation in R/create_new_db_tbls.R
 \name{create_new_db_tbls}
 \alias{create_new_db_tbls}
-\title{instantiates an initial primary table into the database defined by db_conn_pool;
-writes the initial primary table dataframe to the relational database
-as well as instantiates the corresponding deltas metadata table for change tracking
-Note: function should only be called once when setting up a table to track within the db
-If you need to remove tables, these functions can be helpful:
-pool::dbListTables(db_conn_pool)
-pool::dbRemoveTable(db_conn_pool, 'some_table')}
+\title{Creates primary and deltas tables in a db}
 \usage{
 create_new_db_tbls(db_conn_pool, db_tbl)
 }

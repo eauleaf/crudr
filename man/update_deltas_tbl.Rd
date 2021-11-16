@@ -2,8 +2,7 @@
 % Please edit documentation in R/update_deltas_tbl.R
 \name{update_deltas_tbl}
 \alias{update_deltas_tbl}
-\title{Connects to and posts who-what-when data to a change tracking table
-Function is called when a user updates the data in a primary table}
+\title{Populates deltas table when user updates primary table}
 \usage{
 update_deltas_tbl(
   db_conn_pool,
