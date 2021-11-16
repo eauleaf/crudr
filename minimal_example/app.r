@@ -12,8 +12,8 @@ library(crudr)
 data("iris")
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
 # dataset must have a unique identifier column and unique identifiers must be chars, not numeric
-iris <- dplyr::mutate(iris, unique_id = paste0('uid_',row_number()))
-create_new_db_tbls(db_conn_pool = con, db_tbl = iris)
+iris <- dplyr::mutate(iris, unique_id = paste0('uid_',dplyr::row_number()))
+cdr_create_new_db_tbls(db_conn_pool = con, db_tbl = iris)
 print(here::here('iris.db')) # location of database
 print(dbListTables(con)) # tables in database
 ##############################################
@@ -33,8 +33,8 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   tabItems(
     tabItem("datr_joined", DT::DTOutput('iris_db_data')),
-    tabItem("datr_editable", div(mod_btn_ui('iris'), mod_tbl_ui('iris', 'db_tbl'))),
-    tabItem("datr_change_log", mod_tbl_ui('iris', 'db_tbl_deltas'))
+    tabItem("datr_editable", div(cdr_mod_btn_ui('iris'), cdr_mod_tbl_ui('iris', 'db_tbl'))),
+    tabItem("datr_change_log", cdr_mod_tbl_ui('iris', 'db_tbl_deltas'))
   ))
 
 ui <- dashboardPage(header, sidebar, body)
@@ -49,7 +49,7 @@ server <- function(input, output, session){
 
   # function: mod_tbl_server() returns 3 tables...
   # namespace tables: output$db_tbl and output$db_tbl_deltas, and the tables joined in iris_tbl_out()
-  iris_tbl_out <- mod_tbl_server('iris', 'unique_id', con, session, open_sesame)
+  iris_tbl_out <- cdr_mod_tbl_server('iris', 'unique_id', con, session, open_sesame)
   output$iris_db_data <- renderDT(
     formatDate(table = DT::datatable(iris_tbl_out()),
                columns = 'when',

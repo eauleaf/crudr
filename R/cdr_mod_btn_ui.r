@@ -14,7 +14,7 @@
 #' \dontrun{
 #' ui <- fluidPage(mod_tbl_ui('primary_table_name'))
 #' }
-mod_btn_ui <- function(id){
+cdr_mod_btn_ui <- function(id){
   ns <- shiny::NS(id)
   shiny::uiOutput(ns('uid_btn'))
 }

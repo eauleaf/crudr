@@ -9,6 +9,6 @@
 #' deltas_tbl_name('some_table_name')
 #' }
 
-deltas_tbl_name <- function(db_tbl_name){
+cdr_deltas_tbl_name <- function(db_tbl_name){
   glue::glue("{db_tbl_name}_deltas")
 }

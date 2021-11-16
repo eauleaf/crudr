@@ -16,7 +16,7 @@
 #'
 #' @importFrom rlang .data
 #'
-check_unique_id <- function(db_conn_pool, db_tbl_name, new_uid, uid_column_name){
+cdr_check_unique_id <- function(db_conn_pool, db_tbl_name, new_uid, uid_column_name){
 
   new_uid <- stringr::str_trim(new_uid)
 

@@ -16,7 +16,7 @@
 #' @export
 #'
 
-create_new_db_tbls <- function(db_conn_pool, db_tbl){
+cdr_create_new_db_tbls <- function(db_conn_pool, db_tbl){
 
   db_tbl_name <- rlang::as_name(rlang::enquo(db_tbl))
 
@@ -36,7 +36,7 @@ create_new_db_tbls <- function(db_conn_pool, db_tbl){
   }
 
   # create change tracking table
-  deltas_db_tbl_name <- deltas_tbl_name(db_tbl_name)
+  deltas_db_tbl_name <- cdr_deltas_tbl_name(db_tbl_name)
   if(!pool::dbExistsTable(conn = db_conn_pool, name = deltas_db_tbl_name)){
 
     pool::dbCreateTable(conn = db_conn_pool,

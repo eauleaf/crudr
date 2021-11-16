@@ -19,7 +19,7 @@
 #' \dontrun{
 #' combine_prim_delt_tbls(db_tbl, db_tbl_deltas, key_col)
 #' }
-combine_prim_delt_tbls <- function(db_tbl, db_tbl_deltas, key_col){
+cdr_combine_prim_delt_tbls <- function(db_tbl, db_tbl_deltas, key_col){
 
   db_tbl_deltas %>%
     dplyr::group_by(uid) %>%

@@ -19,18 +19,18 @@
 #'
 #' @examples
 #' \dontrun{
-#' # ensure db is already setup with crudr::create_new_db_tbls()
+#' # ensure db is already setup with cdr_create_new_db_tbls()
 #' db_conn_pool <- easydbconn::get_db_con(friendly_db_name)
 #' server <- function(input, output, session){
-#'              mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
+#'              cdr_mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
 #' shinyApp(ui, server)
 #' }
 
-mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
+cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
   shiny::moduleServer(id, module = function(input, output, session){
 
     # new observation row edit function
-    render_new_row_ui <- function(id, notes_txt = ''){
+    cdr_render_new_row_ui <- function(id, notes_txt = ''){
       if(open_sesame){
         output$uid_btn <- shiny::renderUI({
           ns <- shiny::NS(id)
@@ -43,7 +43,7 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
       }
     }
 
-    render_new_row_ui(id)
+    cdr_render_new_row_ui(id)
 
 
 
@@ -85,7 +85,7 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
 
 
     ### deltas tbl
-    db_tbl_deltas <- dplyr::tbl(db_conn_pool, deltas_tbl_name(id)) %>% dplyr::collect() %>% dplyr::arrange(dplyr::desc(when))
+    db_tbl_deltas <- dplyr::tbl(db_conn_pool, cdr_deltas_tbl_name(id)) %>% dplyr::collect() %>% dplyr::arrange(dplyr::desc(when))
     if(class(db_tbl_deltas$when) == 'numeric'){ # for SQLite
       db_tbl_deltas <- dplyr::mutate(db_tbl_deltas, when = as.POSIXct(when,origin = "1970-01-01"))}
     proxy_db_tbl_deltas = DT::dataTableProxy('db_tbl_deltas')
@@ -110,7 +110,7 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
       db_tbl[row_idx, col_idx] <<- update_value
       DT::replaceData(proxy_db_tbl, db_tbl, resetPaging = FALSE)
 
-      old_db_val <- crudr::update_primary_tbl(
+      old_db_val <- cdr_update_primary_tbl(
         db_conn_pool = db_conn_pool,
         db_tbl_name = id,
         update_value = update_value,
@@ -121,9 +121,9 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
 
       print(paste0("overwrote: '",old_db_val,"' with '",update_value,"' in '",id,"' database"))
 
-      changes <- crudr::update_deltas_tbl(
+      changes <- cdr_update_deltas_tbl(
         db_conn_pool = db_conn_pool,
-        db_tbl_name = crudr::deltas_tbl_name(id),
+        db_tbl_name = cdr_deltas_tbl_name(id),
         old_value = old_db_val,
         update_value = update_value,
         value_rowuid = as.character(value_rowuid),
@@ -142,16 +142,16 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
     ###listener to update db and tables when user creates a new row
     shiny::observeEvent(input$load_uid, {
 
-      out_text <- check_unique_id(db_conn_pool, id, input$uid, key_col)
+      out_text <- cdr_check_unique_id(db_conn_pool, id, input$uid, key_col)
 
       if(is.null(out_text)){
-        new_row <- create_new_db_row(db_conn_pool, id, input$uid, (!!key_col))
+        new_row <- cdr_create_new_db_row(db_conn_pool, id, input$uid, (!!key_col))
         db_tbl <<- dplyr::bind_rows(new_row, db_tbl)
         DT::replaceData(proxy_db_tbl, db_tbl)
 
-        changes <- crudr::update_deltas_tbl(
+        changes <- cdr_update_deltas_tbl(
           db_conn_pool = db_conn_pool,
-          db_tbl_name = crudr::deltas_tbl_name(id),
+          db_tbl_name = cdr_deltas_tbl_name(id),
           old_value = "",
           update_value = input$uid,
           value_rowuid = input$uid,
@@ -165,13 +165,13 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
         print(paste0("updated: '",id,"' deltas database with: ", changes))
 
       }
-      render_new_row_ui(id, out_text)
+      cdr_render_new_row_ui(id, out_text)
     })
 
 
     # return combined tables to module parent env
     shiny::eventReactive(list(input$db_tbl_cell_edit, input$load_uid),
-                         {combine_prim_delt_tbls(db_tbl, db_tbl_deltas, key_col)},
+                         {cdr_combine_prim_delt_tbls(db_tbl, db_tbl_deltas, key_col)},
                          ignoreNULL=FALSE)
 
   }

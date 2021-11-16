@@ -15,13 +15,13 @@
 #' @export
 #'
 
-update_deltas_tbl <- function(db_conn_pool,
-                              db_tbl_name,
-                              old_value,
-                              update_value,
-                              value_colname,
-                              value_rowuid,
-                              who = Sys.info()[['user']]
+cdr_update_deltas_tbl <- function(db_conn_pool,
+                                  db_tbl_name,
+                                  old_value,
+                                  update_value,
+                                  value_colname,
+                                  value_rowuid,
+                                  who = Sys.info()[['user']]
 ){
   to_deltas_tbl <- tibble::tibble(uid = value_rowuid,
                                   field = value_colname,
