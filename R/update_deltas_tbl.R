@@ -1,3 +1,5 @@
+#' Populates deltas table when user updates primary table
+#'
 #' Connects to and posts who-what-when data to a change tracking table
 #'  Function is called when a user updates the data in a primary table
 #'
@@ -19,18 +21,15 @@ update_deltas_tbl <- function(db_conn_pool,
                               update_value,
                               value_colname,
                               value_rowuid,
-                              who = NULL
+                              who = Sys.info()[['user']]
 ){
-
-  print(who)
   to_deltas_tbl <- tibble::tibble(uid = value_rowuid,
                                   field = value_colname,
                                   to = as.character(update_value),
                                   from = as.character(old_value),
-                                  who = ifelse(is.null(who), Sys.info()[['user']], who),
+                                  who = who,
                                   when = lubridate::now())
-  pool::dbAppendTable(db_conn_pool, db_tbl_name, to_deltas_tbl)
-
+  this.out <- pool::dbAppendTable(db_conn_pool, db_tbl_name, to_deltas_tbl)
   return(to_deltas_tbl)
 
 }

@@ -1,3 +1,5 @@
+#' UI module for a DT from the Server module
+#'
 #' User interface portion of the crudr module
 #'  Presents an ajax datatable in a shiny UI
 #'  Used exclusively on 'mod_tbl_server' object
@@ -14,6 +16,6 @@
 #' }
 mod_tbl_ui <- function(id, tbl_type = 'db_tbl'){
   shinycssloaders::withSpinner(
-    DTOutput(NS(id,tbl_type))
+    DT::DTOutput(NS(id,tbl_type))
   )
 }

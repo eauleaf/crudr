@@ -1,3 +1,5 @@
+#' Creates primary and deltas tables in a db
+#'
 #' instantiates an initial primary table into the database defined by db_conn_pool;
 #'   writes the initial primary table dataframe to the relational database
 #'   as well as instantiates the corresponding deltas metadata table for change tracking
@@ -21,14 +23,14 @@ create_new_db_tbls <- function(db_conn_pool, db_tbl){
 
     pool::dbCreateTable(conn = db_conn_pool, name = db_tbl_name, fields = db_tbl)
     pool::dbAppendTable(conn = db_conn_pool, name = db_tbl_name, value = db_tbl)
-    reporting <- dplyr::tbl(db_conn_pool, db_tbl_name) %>% head() %>% collect()
+    reporting <- dplyr::tbl(db_conn_pool, db_tbl_name) %>% head() %>% dplyr::collect()
 
     cat(glue::glue("\n\nCreated and populated table '{db_tbl_name}' with structure:\n\n"))
     cat(str(reporting))
 
   } else {
 
-    cat(glue::glue("\n\nTable creation failed for '{db_tbl_name}'; table already exists in the database."))
+    cat(glue::glue("\n\nUnable to create new table for '{db_tbl_name}'; table already exists in the database.\n"))
 
   }
 
@@ -49,9 +51,10 @@ create_new_db_tbls <- function(db_conn_pool, db_tbl){
 
     cat(glue::glue("\n\nCreated new change tracking table '{deltas_db_tbl_name}' with structure: \n\n"))
     cat(str(reporting))
+
   } else {
 
-    cat(glue::glue("\n\nTable creation failed for '{deltas_db_tbl_name}'; table already exists in the database."))
+    cat(glue::glue("\n\nUnable to create new table for '{deltas_db_tbl_name}'; table already exists in the database.\n\n"))
 
   }
 

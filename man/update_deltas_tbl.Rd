@@ -12,7 +12,7 @@ update_deltas_tbl(
   update_value,
   value_colname,
   value_rowuid,
-  who = NULL
+  who = Sys.info()[["user"]]
 )
 }
 \arguments{
