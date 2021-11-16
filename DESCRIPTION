@@ -10,4 +10,14 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
-    magrittr
+    dplyr,
+    DT,
+    glue,
+    lubridate,
+    magrittr,
+    pool,
+    rlang,
+    shiny,
+    shinycssloaders,
+    stringr,
+    tibble

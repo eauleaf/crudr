@@ -14,7 +14,9 @@ combine_prim_delt_tbls(db_tbl, db_tbl_deltas, key_col)
 \item{key_col}{the name of the unique ID column in the primary table}
 }
 \value{
-the joined tables; all of db_tbl, and who-when information from the deltas table (function also places the individual tables into output$ for ui presentation)
+the joined tables; all of db_tbl, and who-when information from the
+deltas table (function also places the individual tables into output$ for
+ui presentation)
 }
 \description{
 join data from db_tbl and recent change values from db_tbl_deltas tables

@@ -12,14 +12,15 @@ create_new_db_tbls(db_conn_pool, db_tbl)
 \item{db_tbl}{a dataframe; the primary table to place into the database}
 }
 \value{
-NULL; and cat statements to the console reporting success or failure
+NULL; and function cats statements to the console reporting success
+or failure
 }
 \description{
-instantiates an initial primary table into the database defined by db_conn_pool;
-writes the initial primary table dataframe to the relational database
-as well as instantiates the corresponding deltas metadata table for change tracking
-Note: function should only be called once when setting up a table to track within the db
-If you need to remove tables, these functions can be helpful:
-pool::dbListTables(db_conn_pool)
+instantiates an initial primary table into the database defined by
+db_conn_pool; writes the initial primary table dataframe to the relational
+database as well as instantiates the corresponding deltas metadata table for
+change tracking Note: function should only be called once when setting up a
+table to track within the db If you need to remove tables, these functions
+can be helpful: pool::dbListTables(db_conn_pool)
 pool::dbRemoveTable(db_conn_pool, 'some_table')
 }

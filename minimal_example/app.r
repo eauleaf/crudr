@@ -25,15 +25,15 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     id = 'tabs',
     menuItem("Iris",
-             menuSubItem("Iris Managed Table (editable)", tabName = "datr_editable"),
              menuSubItem("Iris Output Table", tabName = "datr_joined"),
+             menuSubItem("Iris Managed Table (editable)", tabName = "datr_editable"),
              menuSubItem("Iris Change Log", tabName = "datr_change_log")
     )))
 
 body <- dashboardBody(
   tabItems(
-    tabItem("datr_editable", div(mod_btn_ui('iris'), mod_tbl_ui('iris', 'db_tbl'))),
     tabItem("datr_joined", DT::DTOutput('iris_db_data')),
+    tabItem("datr_editable", div(mod_btn_ui('iris'), mod_tbl_ui('iris', 'db_tbl'))),
     tabItem("datr_change_log", mod_tbl_ui('iris', 'db_tbl_deltas'))
   ))
 

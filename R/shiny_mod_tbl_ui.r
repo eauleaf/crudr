@@ -16,6 +16,6 @@
 #' }
 mod_tbl_ui <- function(id, tbl_type = 'db_tbl'){
   shinycssloaders::withSpinner(
-    DT::DTOutput(NS(id,tbl_type))
+    DT::DTOutput(shiny::NS(id,tbl_type))
   )
 }

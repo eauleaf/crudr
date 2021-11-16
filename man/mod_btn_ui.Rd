@@ -7,17 +7,15 @@
 mod_btn_ui(id)
 }
 \arguments{
-\item{id}{primary table name - namespace ID corresponding to the 'primary_tbl_name' in the database}
-
-\item{out_type}{defaults to 'uid_btn'}
+\item{id}{primary table name - namespace ID corresponding to the
+'primary_tbl_name' in the database}
 }
 \value{
 html (to be called in a shiny app only)
 }
 \description{
-User interface portion of the server module
-UID input textbox and submit button
-UI shows up for primary table if open_sesame is set to T in server
+User interface portion of the server module UID input textbox and submit
+button UI shows up for primary table if open_sesame is set to T in server
 }
 \examples{
 \dontrun{

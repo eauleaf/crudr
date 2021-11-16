@@ -7,13 +7,15 @@
 mod_tbl_server(id, key_col, db_conn_pool, session, open_sesame = F)
 }
 \arguments{
-\item{id}{primary table name - namespace ID corresponding to the 'primary_tbl_name' in the database}
+\item{id}{primary table name - namespace ID corresponding to the
+'primary_tbl_name' in the database}
 
-\item{key_col}{name of the unique ID column in the db table (table must have a unique ID column with unique IDs)}
+\item{key_col}{name of the unique ID column in the db table (table must have
+a unique ID column with unique IDs)}
 
 \item{db_conn_pool}{db connection from package 'pool'}
 
-\item{session}{}
+\item{session}{current shiny session}
 
 \item{open_sesame}{T or F to make editable the primary table from the module}
 }
@@ -21,14 +23,18 @@ mod_tbl_server(id, key_col, db_conn_pool, session, open_sesame = F)
 returns DT reactive tables to the shiny ui environment
 }
 \description{
-Shiny server module gets database tables from db specified by pool connection and the db table name specified in 'id',
-server module manages and syncs changes between the UI DT, in-server-memory tbl, and backend db,
-for the primary as well as the corresponding deltas table (and joined table if it's presented in the UI)
+Shiny server module gets database tables from db specified by pool connection
+and the db table name specified in 'id', server module manages and syncs
+changes between the UI DT, in-server-memory tbl, and backend db, for the
+primary as well as the corresponding deltas table (and joined table if it's
+presented in the UI)
 }
 \examples{
-\dontrun{ see folder
-db_conn_pool <- easydbconn::get_db_con(friendly_db_name) # ensure db is already setup with crudr::create_new_db_tbls()
-server <- function(input, output, session){mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
+\dontrun{
+# ensure db is already setup with crudr::create_new_db_tbls()
+db_conn_pool <- easydbconn::get_db_con(friendly_db_name)
+server <- function(input, output, session){
+             mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
 shinyApp(ui, server)
 }
 }

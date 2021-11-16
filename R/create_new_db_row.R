@@ -12,6 +12,7 @@
 #'
 #' @return the uid created from the custom uid function
 #' @export
+#' @importFrom rlang :=
 #'
 
 create_new_db_row <- function(db_conn_pool, db_tbl_name, new_uid, uid_column_name){

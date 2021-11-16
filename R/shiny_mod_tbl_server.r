@@ -1,39 +1,45 @@
 #' Server module to present and control db tables
 #'
-#' Shiny server module gets database tables from db specified by pool connection and the db table name specified in 'id',
-#'  server module manages and syncs changes between the UI DT, in-server-memory tbl, and backend db,
-#'  for the primary as well as the corresponding deltas table (and joined table if it's presented in the UI)
+#' Shiny server module gets database tables from db specified by pool connection
+#' and the db table name specified in 'id', server module manages and syncs
+#' changes between the UI DT, in-server-memory tbl, and backend db, for the
+#' primary as well as the corresponding deltas table (and joined table if it's
+#' presented in the UI)
 #'
-#' @param id primary table name - namespace ID corresponding to the 'primary_tbl_name' in the database
-#' @param key_col name of the unique ID column in the db table (table must have a unique ID column with unique IDs)
+#' @param id primary table name - namespace ID corresponding to the
+#'   'primary_tbl_name' in the database
+#' @param key_col name of the unique ID column in the db table (table must have
+#'   a unique ID column with unique IDs)
 #' @param open_sesame T or F to make editable the primary table from the module
 #' @param db_conn_pool db connection from package 'pool'
-#' @param session
+#' @param session current shiny session
 #'
 #' @return returns DT reactive tables to the shiny ui environment
 #' @export
 #'
 #' @examples
-#' \dontrun{ see folder
-#' db_conn_pool <- easydbconn::get_db_con(friendly_db_name) # ensure db is already setup with crudr::create_new_db_tbls()
-#' server <- function(input, output, session){mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
+#' \dontrun{
+#' # ensure db is already setup with crudr::create_new_db_tbls()
+#' db_conn_pool <- easydbconn::get_db_con(friendly_db_name)
+#' server <- function(input, output, session){
+#'              mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
 #' shinyApp(ui, server)
 #' }
 
 mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
   shiny::moduleServer(id, module = function(input, output, session){
 
-# new observation row edit function
+    # new observation row edit function
     render_new_row_ui <- function(id, notes_txt = ''){
       if(open_sesame){
-        output$uid_btn <- renderUI({
-          ns <- NS(id)
-          tags$span(style="display: inline-flex; align-items: center; gap: 0px 15px; font-size: 10px;",
-                    textInput(ns('uid'), '', placeholder = 'Enter unique ID', width = '180px'),
-                    actionButton(ns('load_uid'), label = "Create Row", text = 'Create Row'),
-                    span(notes_txt, style = "color:red; font-size: 130%;"))})
+        output$uid_btn <- shiny::renderUI({
+          ns <- shiny::NS(id)
+          shiny::tags$span(style="display: inline-flex; align-items: center; gap: 0px 15px; font-size: 10px;",
+                           shiny::textInput(ns('uid'), '', placeholder = 'Enter unique ID', width = '180px'),
+                           shiny::actionButton(ns('load_uid'), label = "Create Row", text = 'Create Row'),
+                           shiny::span(notes_txt, style = "color:red; font-size: 130%;"))})
       } else {
-        output$uid_btn <- renderUI(' ')
+        output$uid_btn <- shiny::renderUI(' ')
       }
     }
 
@@ -71,7 +77,7 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
     output$db_tbl <- DT::renderDT(
       DT::datatable(db_tbl,
                     options = list(scrollX = TRUE,  keys = TRUE),
-                    callback = JS(js),
+                    callback = DT::JS(js),
                     extensions = "KeyTable",
                     selection = 'none',
                     editable = if(open_sesame){list(target = "cell", disable = list(columns = c(0,1)))}
@@ -84,8 +90,8 @@ mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
       db_tbl_deltas <- dplyr::mutate(db_tbl_deltas, when = as.POSIXct(when,origin = "1970-01-01"))}
     proxy_db_tbl_deltas = DT::dataTableProxy('db_tbl_deltas')
     output$db_tbl_deltas <- DT::renderDT(
-      datatable(db_tbl_deltas,
-                selection = 'none') %>%
+      DT::datatable(db_tbl_deltas,
+                    selection = 'none') %>%
         DT::formatDate('when', method = 'toLocaleString')
     )
 

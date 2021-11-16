@@ -22,8 +22,8 @@ update_primary_tbl <- function(db_conn_pool         = db_conn_pool,
 
   #prep delta table inputs
   old_value <- dplyr::tbl(db_conn_pool, db_tbl_name) %>%
-    filter(!!as.symbol(value_rowuid_colname) == value_rowuid) %>% #show_query()
-    pull({{value_colname}})
+    dplyr::filter(!!as.symbol(value_rowuid_colname) == value_rowuid) %>% #show_query()
+    dplyr::pull({{value_colname}})
 
   # some simple checks
   if (length(old_value) > 1){stop(glue::glue("The field {value_rowuid_colname} isn't a unique identifier in database table {db_tbl_name}"))}
@@ -44,7 +44,7 @@ update_primary_tbl <- function(db_conn_pool         = db_conn_pool,
 
   success <- pool::dbExecute(db_conn_pool, sql_stmt)
 
-  if(!success){stop("Not able to write the information to the database. Please try again.")}
+  if(!success){message("Not able to write the information to the database. Please assess database connection.")}
 
   return(old_value)
 
