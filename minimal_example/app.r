@@ -12,7 +12,7 @@ library(crudr)
 data("iris")
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
 # dataset must have a unique identifier column and unique identifiers must be chars, not numeric
-iris <- dplyr::mutate(iris, unique_id = paste0('uid_',dplyr::row_number()))
+iris <- dplyr::mutate(iris, unique_id = paste0('uid_',stringr::str_pad(dplyr::row_number(),3,pad=0)))
 cdr_create_new_db_tbls(db_conn_pool = con, db_tbl = iris)
 locn <- print(here::here('iris.db')) # location of database
 dbs <- print(paste(dbListTables(con), collapse = ', ')) # tables in database
@@ -28,10 +28,10 @@ header <- dashboardHeader(title = 'Minimal Example',
 sidebar <- dashboardSidebar(
   sidebarMenu(
     id = 'tabs',
-    menuItem("Iris",
-             menuSubItem("Iris Output Table", tabName = "datr_joined"),
-             menuSubItem("Iris Managed Table (editable)", tabName = "datr_editable"),
-             menuSubItem("Iris Change Log", tabName = "datr_change_log")
+    menuItem("Iris Data",
+             menuSubItem("Joined Iris Tables", tabName = "datr_joined"),
+             menuSubItem("Editable Iris Table", tabName = "datr_editable"),
+             menuSubItem("Iris Table Change Log", tabName = "datr_change_log")
     )))
 
 body <- dashboardBody(

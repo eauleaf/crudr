@@ -17,8 +17,8 @@ from mod_tbl_server you want to present}
 html (to be called in a shiny app only)
 }
 \description{
-User interface portion of the crudr module Presents an ajax datatable in a
-shiny UI Used exclusively on 'mod_tbl_server' object
+User interface portion of the crudr module. Presents an ajax datatable in a
+shiny UI. Just a DT output wrapped in a namespace
 }
 \examples{
 \dontrun{

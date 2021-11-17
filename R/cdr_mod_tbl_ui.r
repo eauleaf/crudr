@@ -1,7 +1,7 @@
 #' UI module for a DT from the Server module
 #'
-#' User interface portion of the crudr module Presents an ajax datatable in a
-#' shiny UI Used exclusively on 'mod_tbl_server' object
+#' User interface portion of the crudr module. Presents an ajax datatable in a
+#' shiny UI. Just a DT output wrapped in a namespace
 #'
 #' @param id primary table name - namespace ID corresponding to the
 #'   'primary_tbl_name' in the database

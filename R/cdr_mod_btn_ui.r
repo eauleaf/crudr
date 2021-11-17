@@ -16,5 +16,7 @@
 #' }
 cdr_mod_btn_ui <- function(id){
   ns <- shiny::NS(id)
-  shiny::uiOutput(ns('uid_btn'))
+  shinycssloaders::withSpinner(
+    shiny::uiOutput(ns('uid_btn'))
+  )
 }
