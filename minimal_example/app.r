@@ -20,8 +20,8 @@ dbs <- print(paste(dbListTables(con), collapse = ', ')) # tables in database
 
 
 header <- dashboardHeader(title = 'Minimal Example',
-                          dropdownMenu(messageItem('', paste('DB locn:',locn)),
-                                       messageItem('', paste('DB tbls:',dbs))
+                          dropdownMenu(messageItem('', paste('DB-locn:',locn)),
+                                       messageItem('', paste('DB-tbls:',dbs))
                                        )
                           )
 

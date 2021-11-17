@@ -86,12 +86,11 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
 
     ### deltas tbl
     db_tbl_deltas <- dplyr::tbl(db_conn_pool, cdr_deltas_tbl_name(id)) %>% dplyr::collect() %>% dplyr::arrange(dplyr::desc(when))
-    if(class(db_tbl_deltas$when) == 'numeric'){ # for SQLite
+    if(class(db_tbl_deltas$when)[1] == 'numeric'){ # for SQLite
       db_tbl_deltas <- dplyr::mutate(db_tbl_deltas, when = as.POSIXct(when,origin = "1970-01-01"))}
     proxy_db_tbl_deltas = DT::dataTableProxy('db_tbl_deltas')
     output$db_tbl_deltas <- DT::renderDT(
-      DT::datatable(db_tbl_deltas,
-                    selection = 'none') %>%
+      DT::datatable(db_tbl_deltas,selection = 'none') %>%
         DT::formatDate('when', method = 'toLocaleString')
     )
 
