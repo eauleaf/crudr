@@ -30,6 +30,12 @@ cdr_update_deltas_tbl <- function(db_conn_pool,
                                   who = who,
                                   when = lubridate::now())
   this.out <- pool::dbAppendTable(db_conn_pool, db_tbl_name, to_deltas_tbl)
+
+  if(this.out){
+    print('Appended these fields to deltas table:')
+    print(to_deltas_tbl)
+    }
+
   return(to_deltas_tbl)
 
 }

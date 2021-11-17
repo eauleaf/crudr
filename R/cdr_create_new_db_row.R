@@ -17,8 +17,6 @@
 
 cdr_create_new_db_row <- function(db_conn_pool, db_tbl_name, new_uid, uid_column_name){
 
-  if(is.character(new_uid)) {new_uid <- stringr::str_trim(new_uid)}
-
   #prep delta table inputs
   table_struc <-
     dplyr::tbl(db_conn_pool, db_tbl_name) %>%

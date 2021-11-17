@@ -46,7 +46,11 @@ cdr_update_primary_tbl <- function(db_conn_pool         = db_conn_pool,
 
   success <- pool::dbExecute(db_conn_pool, sql_stmt)
 
-  if(!success){message("Not able to write the information to the database. Please assess database connection.")}
+  if(success){
+    cat(paste0("\nOverwrote: '",old_value,"' with '",update_value,"' in '",db_tbl_name,"' database\n"))
+  } else {
+    message("Not able to write the information to the database. Please assess database connection.")
+    }
 
   return(old_value)
 

@@ -34,10 +34,10 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
       if(open_sesame){
         output$uid_btn <- shiny::renderUI({
           ns <- shiny::NS(id)
-          shiny::tags$span(style="display: inline-flex; align-items: center; gap: 0px 15px; font-size: 10px;",
+          shiny::tags$span(style="display: inline-flex; align-items: center; font-size: 10px;",
                            shiny::textInput(ns('uid'), '', placeholder = 'Enter unique ID', width = '180px'),
-                           shiny::actionButton(ns('load_uid'), label = "Create Row", text = 'Create Row'),
-                           shiny::span(notes_txt, style = "color:red; font-size: 130%;"))})
+                           shiny::actionButton(ns('load_uid'), label = "Create Row", text = 'Create Row', style = 'margin-left: 15px;' ),
+                           shiny::span(notes_txt, style = "color:red; font-size: 130%; margin-left: 15px;"))})
       } else {
         output$uid_btn <- shiny::renderUI(' ')
       }
@@ -102,12 +102,22 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
       row_idx <- to_update[['row']]
       col_idx <- to_update[['col']]
       old_mem_val <- db_tbl[row_idx, col_idx][[1]]
+
+      if(is.character(to_update[['value']])){ to_update[['value']] <- stringr::str_trim(to_update[['value']])}
       update_value = DT::coerceValue(to_update[['value']], old_mem_val)
 
       value_colname = names(db_tbl)[col_idx]
       value_rowuid = db_tbl[row_idx, key_col][[1]] # unique key identifier
       db_tbl[row_idx, col_idx] <<- update_value
       DT::replaceData(proxy_db_tbl, db_tbl, resetPaging = FALSE)
+
+      if(((is.na(old_mem_val) | is.null(old_mem_val) | identical(old_mem_val, '')) &
+          (is.na(update_value) | is.null(update_value) | identical(update_value, ''))) |
+          identical(old_mem_val, update_value)){
+        cat(paste0("\nThe old value is '",old_mem_val,"' and the new value is '",
+                    update_value,"'. Not updating the DB.\n"))
+        return()
+      }
 
       old_db_val <- cdr_update_primary_tbl(
         db_conn_pool = db_conn_pool,
@@ -117,8 +127,6 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
         value_rowuid = value_rowuid, # unique key identifier
         value_rowuid_colname = key_col  # column with unique key identifier
       )
-
-      print(paste0("overwrote: '",old_db_val,"' with '",update_value,"' in '",id,"' database"))
 
       changes <- cdr_update_deltas_tbl(
         db_conn_pool = db_conn_pool,
@@ -133,7 +141,6 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
       # update parent env
       db_tbl_deltas <<- dplyr::bind_rows(db_tbl_deltas, changes) %>% dplyr::arrange(dplyr::desc(when))
       DT::replaceData(proxy_db_tbl_deltas, db_tbl_deltas)
-      print(paste0("updated: '",id,"' deltas database with: ", changes))
 
     })
 
@@ -141,10 +148,12 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
     ###listener to update db and tables when user creates a new row
     shiny::observeEvent(input$load_uid, {
 
-      out_text <- cdr_check_unique_id(db_conn_pool, id, input$uid, key_col)
+      input_uid <- stringr::str_trim(input$uid)
+
+      out_text <- cdr_check_unique_id(db_conn_pool, id, input_uid, key_col)
 
       if(is.null(out_text)){
-        new_row <- cdr_create_new_db_row(db_conn_pool, id, input$uid, (!!key_col))
+        new_row <- cdr_create_new_db_row(db_conn_pool, id, input_uid, (!!key_col))
         db_tbl <<- dplyr::bind_rows(new_row, db_tbl)
         DT::replaceData(proxy_db_tbl, db_tbl)
 
@@ -152,8 +161,8 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
           db_conn_pool = db_conn_pool,
           db_tbl_name = cdr_deltas_tbl_name(id),
           old_value = "",
-          update_value = input$uid,
-          value_rowuid = input$uid,
+          update_value = input_uid,
+          value_rowuid = input_uid,
           value_colname = key_col,
           who = ifelse(is.null(session$user), Sys.info()[['user']], session$user)
         )
@@ -161,7 +170,6 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
         # update parent env
         db_tbl_deltas <<- dplyr::bind_rows(db_tbl_deltas, changes) %>% dplyr::arrange(dplyr::desc(when))
         DT::replaceData(proxy_db_tbl_deltas, db_tbl_deltas)
-        print(paste0("updated: '",id,"' deltas database with: ", changes))
 
       }
       cdr_render_new_row_ui(id, out_text)
