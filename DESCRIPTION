@@ -3,7 +3,7 @@ Title: Simplifies create CRUD tasks including tracking changes of db table
 Version: 0.0.0.9006
 Authors@R: 
     person("eau", "leaf", email = "eau.leaf@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Functions to use in Shiny to manage and track changes to database tables
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
