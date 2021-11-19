@@ -29,7 +29,7 @@ where the value to update is located (key)}
 \item{value_rowuid_colname}{string: the name of the column with the unique ID (key column)}
 }
 \value{
-'old_value': number or strings previously held in the database prior to replacement
+TRUE
 }
 \description{
 updates the primary db table by specifying value to change,

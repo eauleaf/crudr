@@ -4,20 +4,18 @@
 \alias{cdr_check_unique_id}
 \title{Checks availability of unique ID in DB}
 \usage{
-cdr_check_unique_id(db_conn_pool, db_tbl_name, new_uid, uid_column_name)
+cdr_check_unique_id(db_tbl, input_uid, uid_column_name)
 }
 \arguments{
-\item{db_conn_pool}{pool object for the pool of connections to the specific db}
+\item{db_tbl}{primary table in server memory}
 
-\item{db_tbl_name}{char string describing the specific table where the new line is located}
-
-\item{new_uid}{numeric or string: the new unique ID you'd like to use for the
-new observation you're creating; input type must match the db type}
+\item{input_uid}{char string: the new unique ID you'd like to use for the
+new observation you're creating}
 
 \item{uid_column_name}{character string describing the unique ID column}
 }
 \value{
-the uid created from the custom uid function
+text to display in the UI
 }
 \description{
 For a user to create a new row observation, the ID for the unique ID column

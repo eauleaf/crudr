@@ -21,20 +21,17 @@ cdr_update_deltas_tbl <- function(db_conn_pool,
                                   update_value,
                                   value_colname,
                                   value_rowuid,
-                                  who = Sys.info()[['user']]
-){
+                                  who = Sys.info()[['user']]){
+
+  print('cdr_update_deltas_tbl')
+
   to_deltas_tbl <- tibble::tibble(uid = value_rowuid,
                                   field = value_colname,
                                   to = as.character(update_value),
                                   from = as.character(old_value),
                                   who = who,
                                   when = lubridate::now())
-  this.out <- pool::dbAppendTable(db_conn_pool, db_tbl_name, to_deltas_tbl)
-
-  if(this.out){
-    print('Appended these fields to deltas table:')
-    print(to_deltas_tbl)
-    }
+  pool::dbAppendTable(db_conn_pool, db_tbl_name, to_deltas_tbl)
 
   return(to_deltas_tbl)
 

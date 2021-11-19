@@ -29,12 +29,3 @@ changes between the UI DT, in-server-memory tbl, and backend db, for the
 primary as well as the corresponding deltas table (and joined table if it's
 presented in the UI)
 }
-\examples{
-\dontrun{
-# ensure db is already setup with cdr_create_new_db_tbls()
-db_conn_pool <- easydbconn::get_db_con(friendly_db_name)
-server <- function(input, output, session){
-             cdr_mod_tbl_server('primary_tbl_name', 'key_col_name', db_conn_pool)}
-shinyApp(ui, server)
-}
-}

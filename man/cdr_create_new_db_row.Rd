@@ -4,16 +4,14 @@
 \alias{cdr_create_new_db_row}
 \title{Appends new row to primary table}
 \usage{
-cdr_create_new_db_row(db_conn_pool, db_tbl_name, new_uid, uid_column_name)
+cdr_create_new_db_row(db_conn_pool, db_tbl_name, db_row)
 }
 \arguments{
 \item{db_conn_pool}{pool object for the pool of connections to the specific db}
 
 \item{db_tbl_name}{char string describing the specific table the new line is located in}
 
-\item{new_uid}{numeric or string: the new unique ID you'd like to use for the new observation you're creating; input type must match the db type}
-
-\item{uid_column_name}{character string describing the unique ID column}
+\item{db_row}{tibble of the row to append}
 }
 \value{
 the uid created from the custom uid function

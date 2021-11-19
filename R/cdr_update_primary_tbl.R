@@ -9,7 +9,7 @@
 #'     where the value to update is located (key)
 #' @param value_rowuid_colname string: the name of the column with the unique ID (key column)
 #'
-#' @return 'old_value': number or strings previously held in the database prior to replacement
+#' @return TRUE
 #' @export
 #'
 
@@ -20,16 +20,7 @@ cdr_update_primary_tbl <- function(db_conn_pool         = db_conn_pool,
                                    value_rowuid         = NULL,
                                    value_rowuid_colname = NULL
 ){
-
-
-  #prep delta table inputs
-  old_value <- dplyr::tbl(db_conn_pool, db_tbl_name) %>%
-    dplyr::filter(!!as.symbol(value_rowuid_colname) == value_rowuid) %>% #show_query()
-    dplyr::pull({{value_colname}})
-
-  # some simple checks
-  if (length(old_value) > 1){stop(glue::glue("The field {value_rowuid_colname} isn't a unique identifier in database table {db_tbl_name}"))}
-  if (length(old_value) < 1){stop(glue::glue("Cannot find unique ID {value_rowuid} in field {value_rowuid_colname} within table {db_tbl_name}"))}
+print('cdr_update_primary_tbl')
 
   # construct sql statement to update primary table
   sql_stmt <-
@@ -44,14 +35,12 @@ cdr_update_primary_tbl <- function(db_conn_pool         = db_conn_pool,
         value_rowuid = value_rowuid
       ))
 
-  success <- pool::dbExecute(db_conn_pool, sql_stmt)
+  cat(sql_stmt)
 
-  if(success){
-    cat(paste0("\nOverwrote: '",old_value,"' with '",update_value,"' in '",db_tbl_name,"' database\n"))
-  } else {
-    message("Not able to write the information to the database. Please assess database connection.")
-    }
+  pool::dbExecute(db_conn_pool, sql_stmt)
 
-  return(old_value)
+  cat(paste0("\nOverwrote row '",value_rowuid,"' field '",value_colname,"' with '",update_value,"' in '",db_tbl_name,"' database\n"))
+
+  return(TRUE)
 
 }

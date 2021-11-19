@@ -4,34 +4,27 @@
 #' must not already be used. Function checks user requested unique ID against
 #' what's already in the DB
 #'
-#' @param db_conn_pool pool object for the pool of connections to the specific db
-#' @param db_tbl_name char string describing the specific table where the new line is located
-#' @param new_uid numeric or string: the new unique ID you'd like to use for the
-#'   new observation you're creating; input type must match the db type
+#' @param db_tbl primary table in server memory
+#' @param uid_column_name name of the specific column the UID is in
+#' @param input_uid char string: the new unique ID you'd like to use for the
+#'   new observation you're creating
 #' @param uid_column_name character string describing the unique ID column
 #'
-#' @return the uid created from the custom uid function
+#' @return text to display in the UI
 #'
 #' @export
 #'
 #' @importFrom rlang .data
 #'
-cdr_check_unique_id <- function(db_conn_pool, db_tbl_name, new_uid, uid_column_name){
+cdr_check_unique_id <- function(db_tbl, input_uid, uid_column_name){
+  print('cdr_check_unique_id')
 
-  new_uid <- stringr::str_trim(new_uid)
-
-  if(new_uid == ''){
+  if(input_uid == ''){
     return(paste0("Your unique ID entry was blank. To create a new row, please enter a unique ID for field '", uid_column_name,"'."))
   }
 
-  # check that the supplied unique ID is truly unique
-  all_uids <-
-    dplyr::tbl(db_conn_pool, db_tbl_name) %>%
-    dplyr::pull(.data[[uid_column_name]]) %>%
-    unique()
-
-  if(new_uid %in% as.character(all_uids)){
-    return(paste0("Your entry '",new_uid,"' is not unique. To create a new row, please enter a unique ID for field '", uid_column_name,"'."))
+  if(input_uid %in% db_tbl[[uid_column_name]]){
+    return(paste0("Your entry '",input_uid,"' is not unique. To create a new row, please enter a unique ID for field '", uid_column_name,"'."))
   }
 
   return(NULL)

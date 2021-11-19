@@ -12,7 +12,7 @@ cdr_create_new_db_tbls(db_conn_pool, db_tbl)
 \item{db_tbl}{a dataframe; the primary table to place into the database}
 }
 \value{
-NULL; and function cats statements to the console reporting success
+T or F; function cats statements to the console reporting success
 or failure
 }
 \description{

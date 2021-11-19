@@ -6,30 +6,27 @@
 #'  Note2: Function does not clean or control 'new_uid' inputs. Run your cleaning code before passing in 'new_uid'
 #'
 #' @param db_conn_pool pool object for the pool of connections to the specific db
+#' @param db_row tibble of the row to append
 #' @param db_tbl_name char string describing the specific table the new line is located in
-#' @param new_uid numeric or string: the new unique ID you'd like to use for the new observation you're creating; input type must match the db type
-#' @param uid_column_name character string describing the unique ID column
 #'
 #' @return the uid created from the custom uid function
 #' @export
-#' @importFrom rlang :=
 #'
 
-cdr_create_new_db_row <- function(db_conn_pool, db_tbl_name, new_uid, uid_column_name){
+cdr_create_new_db_row <- function(db_conn_pool, db_tbl_name, db_row){
+  print('cdr_create_new_db_row')
 
   #prep delta table inputs
-  table_struc <-
-    dplyr::tbl(db_conn_pool, db_tbl_name) %>%
-    dplyr::filter(FALSE) %>%
-    dplyr::collect()
+  # table_struc <-
+  #   dplyr::tbl(db_conn_pool, db_tbl_name) %>%
+  #   dplyr::filter(FALSE) %>%
+  #   dplyr::collect()
+  # to_append <- table_struc %>% dplyr::bind_rows(tibble::tibble({{uid_column_name}} := new_uid))
 
-  # append the new ID onto the database table
-  to_append <- table_struc %>% dplyr::bind_rows(tibble::tibble({{uid_column_name}} := new_uid))
-  pool::dbAppendTable(conn = db_conn_pool, name = db_tbl_name, value = to_append)
-  to_append <- to_append %>% dplyr::relocate({{uid_column_name}})
+  pool::dbAppendTable(conn = db_conn_pool, name = db_tbl_name, value = db_row)
 
-  cat(glue::glue("\n\nCreated new record in table '{db_tbl_name}' with unique ID '{new_uid}':\n\n"))
-
-  return(to_append)
+  cat(glue::glue("\n\nCreated new record in table '{db_tbl_name}':\n\n"))
+  print(db_row)
+  return(db_row[[1]])
 
 }

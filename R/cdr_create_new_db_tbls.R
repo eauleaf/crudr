@@ -11,7 +11,7 @@
 #' @param db_conn_pool a connection of class 'pool'
 #' @param db_tbl a dataframe; the primary table to place into the database
 #'
-#' @return NULL; and function cats statements to the console reporting success
+#' @return T or F; function cats statements to the console reporting success
 #'   or failure
 #' @export
 #'
@@ -52,11 +52,15 @@ cdr_create_new_db_tbls <- function(db_conn_pool, db_tbl){
 
     cat(glue::glue("\n\nCreated new change tracking table '{deltas_db_tbl_name}' with structure: \n\n"))
     cat(utils::str(reporting))
+    out <- T
 
   } else {
 
     cat(glue::glue("\n\nUnable to create new table for '{deltas_db_tbl_name}'; table already exists in the database.\n\n"))
+    out <- F
 
   }
+
+  return(out)
 
 }
