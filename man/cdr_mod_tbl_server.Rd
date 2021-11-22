@@ -29,3 +29,18 @@ changes between the UI DT, in-server-memory tbl, and backend db, for the
 primary as well as the corresponding deltas table (and joined table if it's
 presented in the UI)
 }
+\examples{
+\dontrun{
+data("iris")
+con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
+iris <- dplyr::mutate(iris,
+           unique_id = paste0('uid_',stringr::str_pad(dplyr::row_number(),3,pad=0)))
+cdr_create_new_db_tbls(db_conn_pool = con, db_tbl = iris)
+server <- function(input, output, session){
+             iris_tbl_out <- cdr_mod_tbl_server('iris', 'unique_id', con, session, open_sesame = T)
+             output$iris <- DT::renderDT(iris_tbl_out())
+}
+ui <- fluidPage(DTOutput('iris'))
+shinyApp(ui,server)
+}
+}

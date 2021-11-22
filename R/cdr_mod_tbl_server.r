@@ -17,74 +17,35 @@
 #' @return returns DT reactive tables to the shiny ui environment
 #' @export
 #'
-#' @examples
-#' \dontrun{
+#' @examples \dontrun{
 #' data("iris")
 #' con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
-#' iris <- dplyr::mutate(iris, unique_id = paste0('uid_',stringr::str_pad(dplyr::row_number(),3,pad=0)))
+#' iris <- dplyr::mutate(iris,
+#'            unique_id = paste0('uid_',stringr::str_pad(dplyr::row_number(),3,pad=0)))
 #' cdr_create_new_db_tbls(db_conn_pool = con, db_tbl = iris)
 #' server <- function(input, output, session){
 #'              iris_tbl_out <- cdr_mod_tbl_server('iris', 'unique_id', con, session, open_sesame = T)
 #'              output$iris <- DT::renderDT(iris_tbl_out())
 #' }
-#' ui <- fluidPage(DTOutput('iris')))
+#' ui <- fluidPage(DTOutput('iris'))
 #' shinyApp(ui,server)
-#'
+#'}
 
 cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame = F){
   shiny::moduleServer(id, module = function(input, output, session){
 
     user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
 
-    # new observation row edit function
-    cdr_render_new_row_ui <- function(id, notes_txt = ''){
-      if(open_sesame){
-        output$uid_btn <- shiny::renderUI({
-          ns <- shiny::NS(id)
-          shiny::tags$span(style="display: inline-flex; align-items: center; font-size: 10px;",
-                           shiny::textInput(ns('uid'), '', placeholder = 'Enter unique ID', width = '180px'),
-                           shiny::actionButton(ns('load_uid'), label = "Create Row", text = 'Create Row', style = 'margin-left: 15px;' ),
-                           shiny::span(notes_txt, style = "color:red; font-size: 130%; margin-left: 15px;"))})
-      } else {
-        output$uid_btn <- shiny::renderUI(' ')
-      }
-    }
 
-    cdr_render_new_row_ui(id)
+    ### primary edit tbl
+    output$uid_btn <- cdr_render_new_row_ui('', id, open_sesame)
 
-
-
-    # key use and edit highlighting
-    js <- c(
-      "table.on('key', function(e, datatable, key, cell, originalEvent){",
-      "  var targetName = originalEvent.target.localName;",
-      "  if(key == 13 && targetName == 'body'){",
-      "    $(cell.node()).trigger('dblclick.dt');",
-      "  }",
-      "});",
-      "table.on('keydown', function(e){",
-      "  if(e.target.localName == 'input' && [9,13,37,38,39,40].indexOf(e.keyCode) > -1){",
-      "    $(e.target).trigger('blur');",
-      "  }",
-      "});",
-      "table.on('key-focus', function(e, datatable, cell, originalEvent){",
-      "  var targetName = originalEvent.target.localName;",
-      "  var type = originalEvent.type;",
-      "  if(type == 'keydown' && targetName == 'input'){",
-      "    if([9,37,38,39,40].indexOf(originalEvent.keyCode) > -1){",
-      "      $(cell.node()).trigger('dblclick.dt');",
-      "    }",
-      "  }",
-      "});"
-    )
-
-    ### primary tbl
     db_tbl <- dplyr::tbl(db_conn_pool, id) %>% dplyr::collect() %>% dplyr::relocate(dplyr::all_of(key_col))
     proxy_db_tbl = DT::dataTableProxy('db_tbl')
     output$db_tbl <- DT::renderDT(
       DT::datatable(db_tbl,
                     options = list(scrollX = TRUE,  keys = TRUE),
-                    callback = DT::JS(js),
+                    callback = cdr_js_edit_ctrl(),
                     extensions = "KeyTable",
                     selection = 'none',
                     editable = if(open_sesame){list(target = "cell", disable = list(columns = c(0,1)))}
@@ -112,14 +73,15 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
       row_idx <- to_update[['row']]
       col_idx <- to_update[['col']]
       old_mem_val <- db_tbl[row_idx, col_idx][[1]]
+      print(typeof(to_update[['value']]))
+      print(class(to_update[['value']]))
 
-      if(is.character(to_update[['value']])){ to_update[['value']] <- stringr::str_trim(to_update[['value']])}
-      update_value = DT::coerceValue(to_update[['value']], old_mem_val)
+      update_value = cdr_coerce_value(to_update[['value']], old_mem_val)
 
       value_colname = names(db_tbl)[col_idx]
       value_rowuid = db_tbl[row_idx, key_col][[1]] # unique key identifier
       db_tbl[row_idx, col_idx] <<- update_value
-      DT::replaceData(proxy_db_tbl, db_tbl, resetPaging = FALSE)
+      DT::replaceData(proxy_db_tbl, db_tbl)
 
 
       if(((is.na(old_mem_val) | is.null(old_mem_val) | identical(old_mem_val, '')) &
@@ -130,7 +92,7 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
         return()
       }
 
-      cdr_render_new_row_ui(id, '... Updating Database ...')
+      output$uid_btn <- cdr_render_new_row_ui('... Updating Database ...', id, open_sesame)
 
 
 
@@ -164,7 +126,7 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
       cat('\n\nAppended these fields to deltas table:\n')
       print(to_deltas_tbl)
 
-      cdr_render_new_row_ui(id, '')
+      output$uid_btn <- cdr_render_new_row_ui('', id, open_sesame)
 
     })
 
@@ -180,7 +142,7 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
 
       if(is.null(out_text)){
 
-        cdr_render_new_row_ui(id, '... Updating Database ...')
+        output$uid_btn <- cdr_render_new_row_ui('... Updating Database ...', id, open_sesame)
 
         db_tbl <<- dplyr::bind_rows(tibble::tibble({{key_col}} := input_uid), db_tbl)
         DT::replaceData(proxy_db_tbl, db_tbl)
@@ -210,7 +172,7 @@ cdr_mod_tbl_server <- function(id, key_col, db_conn_pool, session, open_sesame =
       }
 
       # update the UI
-      cdr_render_new_row_ui(id, out_text)
+      output$uid_btn <- cdr_render_new_row_ui(out_text, id, open_sesame)
 
       cat('\n\n### END NEW ROW\n\n')
 
