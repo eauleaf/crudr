@@ -20,6 +20,6 @@ cdr_render_new_row_ui <- function(notes_txt = '', id, open_sesame){
                        shiny::actionButton(ns('load_uid'), label = "Create Row", text = 'Create Row', style = 'margin-left: 15px;' ),
                        shiny::span(notes_txt, style = "color:red; font-size: 130%; margin-left: 15px;"))})
   } else {
-    output$uid_btn <- shiny::renderUI(' ')
+    shiny::renderUI(' ')
   }
 }
