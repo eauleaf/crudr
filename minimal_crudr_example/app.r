@@ -19,17 +19,14 @@ dbs <- print(paste(dbListTables(con), collapse = ', ')) # tables in database
 ##############################################
 
 
-header <- dashboardHeader(title = 'Minimal Example',
-                          dropdownMenu(messageItem('', paste('DB-locn:',locn)),
-                                       messageItem('', paste('DB-tbls:',dbs))
-                          ))
+header <- dashboardHeader(title = 'Min CRUDR Example')
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
     id = 'tabs',
     menuItem("Iris Data",
              menuSubItem("Joined Iris Tables", tabName = "datr_joined"),
-             menuSubItem("Editable Iris Table", tabName = "datr_editable"),
+             menuSubItem("Editable Iris Table", tabName = "datr_editable", icon = icon('edit')),
              menuSubItem("Iris Table Change Log", tabName = "datr_change_log")
     )))
 
