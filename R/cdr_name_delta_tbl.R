@@ -6,9 +6,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' deltas_tbl_name('some_table_name')
+#' crudr::cdr_name_delta_tbl('some_table_name')
 #' }
 
-cdr_deltas_tbl_name <- function(db_tbl_name){
-  glue::glue("{db_tbl_name}_deltas")
+cdr_name_delta_tbl <- function(db_tbl_name){
+  glue::glue("{db_tbl_name}_DELTAS")
 }

@@ -13,5 +13,5 @@ javascript callback for DT::datatable()
 Allows key use to navigate table and edit cells
 }
 \examples{
-cdr_js_edit_ctrl()
+crudr::cdr_js_edit_ctrl()
 }

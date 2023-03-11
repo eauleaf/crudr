@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_coerce_value.R
 \name{cdr_coerce_value}
 \alias{cdr_coerce_value}
-\title{change cell_edit value to match database value}
+\title{change cell value using DT::coerceValue}
 \usage{
 cdr_coerce_value(input, old_mem_val)
 }
@@ -15,11 +15,11 @@ cdr_coerce_value(input, old_mem_val)
 input value coerced to the correct df_tbl value
 }
 \description{
-change cell_edit value to match database value
+change cell value using DT::coerceValue
 }
 \examples{
-{
+\dontrun{
 input <- c('true','t','truthy','tri',1,0,'false','bla bla bla','a',' ','', 'na','none','no')
-purrr::set_names(purrr::map(input, ~cdr_coerce_value(., TRUE)), input)
+purrr::set_names(purrr::map(input, ~crudr::cdr_coerce_value(., TRUE)), input)
 }
 }

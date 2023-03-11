@@ -1,7 +1,7 @@
-#' UI module interface for row additions in server module table
+#' UI module interface button for row additions and/or row deletions in server module table
 #'
 #' User interface portion of the server module UID input textbox and submit
-#' button UI shows up for primary table if open_sesame is set to T in server
+#' button UI shows up for primary table if cell_edit_permission is set to T in server
 #'
 #'
 #' @param id primary table name - namespace ID corresponding to the
@@ -12,11 +12,13 @@
 #'
 #' @examples
 #' \dontrun{
-#' ui <- fluidPage(mod_tbl_ui('primary_table_name'))
+#' ui <- fluidPage(cdr_admin_key_ui('primary_table_name'))
 #' }
-cdr_mod_btn_ui <- function(id){
+cdr_admin_key_ui <- function(id){
+
   ns <- shiny::NS(id)
   shinycssloaders::withSpinner(type = 7, size = 0.7, proxy.height = '80px',
-    ui_element = shiny::uiOutput(ns('uid_btn')),
+    ui_element = shiny::uiOutput(ns('key_editor_ui'))
   )
+
 }

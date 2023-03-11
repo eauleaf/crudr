@@ -3,7 +3,7 @@
 #' @return javascript callback for DT::datatable()
 #' @export
 #'
-#' @examples cdr_js_edit_ctrl()
+#' @examples crudr::cdr_js_edit_ctrl()
 cdr_js_edit_ctrl <- function(){
 
   # key use and edit highlighting
