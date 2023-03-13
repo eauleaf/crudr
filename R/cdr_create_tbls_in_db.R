@@ -57,7 +57,7 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
     # append tables
     cat(glue::glue("\nAppending data to table '{db_tbl_name}' with truncated query below.\n\n"))
       sql_queries <- split_db_tbl %>%
-        purrr::map(., ~dplyr::mutate(., dplyr::across(dplyr::where(lubridate::is.POSIXct),as.character))) %>%
+        purrr::map(., ~dplyr::mutate(., dplyr::across(tidyselect::where(lubridate::is.POSIXct),as.character))) %>%
         purrr::map(., ~pool::sqlAppendTable(DBI::ANSI(), db_tbl_name, .)) %>%
         suppressWarnings()
       cat(paste(stringr::str_extract(sql_queries, '(?:)(.*\\n){5}'),'... etc... \n\n'))

@@ -7,7 +7,8 @@
 #' @return Boolean describing success
 #' @export
 #'
-#' @examples \dontrun{cdr_remove_tbl(db_conn_pool = pool_connection_object, db_tbl_name = iris, removal = 'truncate')}
+#' @examples \dontrun{cdr_remove_tbl(db_conn_pool = pool_connection_object,
+#' db_tbl_name = iris, removal = 'truncate')}
 #'
 cdr_remove_tbl<- function(db_conn_pool, db_tbl_name = NULL, removal = c('delete', 'truncate')){
   print('cdr_remove_tbl')

@@ -24,6 +24,7 @@ Boolean describing success
 removes a specified table by deleting the table or by removing just the table data (truncating)
 }
 \examples{
-\dontrun{cdr_remove_tbl(db_conn_pool = pool_connection_object, db_tbl_name = iris, removal = 'truncate')}
+\dontrun{cdr_remove_tbl(db_conn_pool = pool_connection_object,
+db_tbl_name = iris, removal = 'truncate')}
 
 }
