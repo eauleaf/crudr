@@ -5,7 +5,7 @@
 \title{Server module to present and control a db table}
 \usage{
 cdr_manage_db_tbls(
-  id,
+  table_name,
   key_col,
   db_conn_pool,
   session,
@@ -16,7 +16,7 @@ cdr_manage_db_tbls(
 )
 }
 \arguments{
-\item{id}{primary table name - namespace ID corresponding to the
+\item{table_name}{primary table name - namespace ID corresponding to the
 'primary_tbl_name' in the database}
 
 \item{key_col}{name of the unique ID column in the db table (table must have
@@ -41,7 +41,7 @@ returns DT reactive tables to the shiny ui environment
 }
 \description{
 This function is a server module that gets database tables from db specified by pool connection
-and the db table name specified in 'id', server module manages and syncs
+and the db table name specified in 'table_name', server module manages and syncs
 changes between the UI DT, in-server-memory tbl, and backend db, for the
 primary as well as the corresponding deltas table (and joined table if it's
 presented in the UI)

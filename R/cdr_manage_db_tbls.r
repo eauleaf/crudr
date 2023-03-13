@@ -1,12 +1,12 @@
 #' Server module to present and control a db table
 #'
 #' This function is a server module that gets database tables from db specified by pool connection
-#' and the db table name specified in 'id', server module manages and syncs
+#' and the db table name specified in 'table_name', server module manages and syncs
 #' changes between the UI DT, in-server-memory tbl, and backend db, for the
 #' primary as well as the corresponding deltas table (and joined table if it's
 #' presented in the UI)
 #'
-#' @param id primary table name - namespace ID corresponding to the
+#' @param table_name primary table name - namespace ID corresponding to the
 #'   'primary_tbl_name' in the database
 #' @param key_col name of the unique ID column in the db table (table must have
 #'   a unique ID column with unique IDs)
@@ -36,14 +36,14 @@
 #' shinyApp(ui,server)
 #'}
 
-cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
+cdr_manage_db_tbls <- function(table_name, key_col, db_conn_pool, session,
                                add_row_permission   = F,
                                del_row_permission   = F,
                                cell_edit_permission = F,
                                lock_fields = c()
                                ){
 
-  shiny::moduleServer(id, module = function(input, output, session){
+  shiny::moduleServer(table_name, module = function(input, output, session){
 
 
 # POST TABLES PRIMARY AND DELTA ---------------------------------------------------------
@@ -52,10 +52,10 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
     user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
 
     cat('\n Create the UI above the primary table based on add row and delete row permissions\n')
-    output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('', id, add_row_permission, del_row_permission) })
+    output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('', table_name, add_row_permission, del_row_permission) })
 
     cat('\n Download Primary table from the database and present it in the UI with permissions\n')
-    db_tbl <- dplyr::tbl(db_conn_pool, id) %>% dplyr::collect() %>% dplyr::relocate(dplyr::all_of(key_col))
+    db_tbl <- dplyr::tbl(db_conn_pool, table_name) %>% dplyr::collect() %>% dplyr::relocate(dplyr::all_of(key_col))
     proxy_db_tbl = DT::dataTableProxy('db_tbl')
     output$db_tbl <- DT::renderDT( DT::datatable(
       db_tbl,
@@ -70,7 +70,7 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
 
 
     cat('\n Download Delta table from the database and present it in the UI\n')
-    chg_log_tbl <- dplyr::tbl(db_conn_pool, crudr::cdr_name_delta_tbl(id)) %>%
+    chg_log_tbl <- dplyr::tbl(db_conn_pool, crudr::cdr_name_delta_tbl(table_name)) %>%
       dplyr::collect() %>% dplyr::arrange(dplyr::desc(WHEN_EDITED))
     if(db_conn_pool$objClass[[1]] == "SQLiteConnection"){ chg_log_tbl <- dplyr::mutate(chg_log_tbl, WHEN_EDITED = lubridate::ymd_hms(WHEN_EDITED))}
     proxy_chg_log_tbl = DT::dataTableProxy('chg_log_tbl')
@@ -116,7 +116,7 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
         return()
       }
 
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', id, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', table_name, add_row_permission, del_row_permission) })
 
 
       cat('\nCreating tibble to append changes to Delta table\n')
@@ -141,7 +141,7 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
       cat('\nUpdating primary table in Database\n')
       crudr::cdr_update_db_primary_tbl(
         db_conn_pool  = db_conn_pool,
-        db_tbl_name   = id,
+        db_tbl_name   = table_name,
         update_value  = update_value,
         value_colname = value_colname,
         value_rowuid  = value_rowuid, # unique key identifier
@@ -151,11 +151,11 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
       cat('\nUpdating delta table in Database\n')
       crudr::cdr_update_db_deltas_tbl(
         db_conn_pool  = db_conn_pool,
-        db_tbl_name   = crudr::cdr_name_delta_tbl(id),
+        db_tbl_name   = crudr::cdr_name_delta_tbl(table_name),
         to_deltas_tbl = to_deltas_tbl
       )
 
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('', id, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('', table_name, add_row_permission, del_row_permission) })
       cat('\n\n# END SECTION: EDIT CELL ----------------------------------------------------\n')
 
     })
@@ -174,14 +174,14 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
 
       if(is.null(out_text)){
 
-        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', id, add_row_permission, del_row_permission) })
+        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', table_name, add_row_permission, del_row_permission) })
 
         db_tbl <<- dplyr::bind_rows(tibble::tibble({{key_col}} := input_uid), db_tbl)
         DT::replaceData(proxy_db_tbl, db_tbl)
 
         crudr::cdr_create_row_in_db(
           db_conn_pool  = db_conn_pool,
-          db_tbl_name   = id,
+          db_tbl_name   = table_name,
           key_col       = key_col,
           input_uid     = input_uid
         )
@@ -204,14 +204,14 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
         # update deltas db table
         crudr::cdr_update_db_deltas_tbl(
           db_conn_pool = db_conn_pool,
-          db_tbl_name = crudr::cdr_name_delta_tbl(id),
+          db_tbl_name = crudr::cdr_name_delta_tbl(table_name),
           to_deltas_tbl = to_deltas_tbl
         )
 
       }
 
       # update the UI
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, id, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, table_name, add_row_permission, del_row_permission) })
       cat('\n# END SECTION: NEW ROW (input$create_row_btn) --------------------------------------------------------\n')
 
     })
@@ -232,7 +232,7 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
       if(is.null(out_text)){
         cat('\nAsking if they are sure they want to delete.\n')
 
-        ns <- shiny::NS(id)
+        ns <- shiny::NS(table_name)
         shiny::showModal(
           shiny::modalDialog(
             footer = NULL,
@@ -244,7 +244,7 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
       } else {
 
         cat('\n Update the UI row controls.\n\n')
-        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, id, add_row_permission, del_row_permission) })
+        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, table_name, add_row_permission, del_row_permission) })
         cat('\n# LVL-B SUB-SECTION: DELETE ROW (update DB tables upon confirm) ----------\n\n')
 
       }
@@ -265,7 +265,7 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
 
       shiny::removeModal()
 
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', id, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', table_name, add_row_permission, del_row_permission) })
 
       cat('\nWhich values are being deleted?\n')
       vals_to_delete <- db_tbl %>%
@@ -308,21 +308,21 @@ cdr_manage_db_tbls <- function(id, key_col, db_conn_pool, session,
         purrr::map(
           ~ crudr::cdr_update_db_deltas_tbl(
             db_conn_pool  = db_conn_pool,
-            db_tbl_name   = crudr::cdr_name_delta_tbl(id),
+            db_tbl_name   = crudr::cdr_name_delta_tbl(table_name),
             to_deltas_tbl = . )
         )
 
       cat(paste0('\nDeleting row from primary table in the DB.\n'))
       crudr::cdr_delete_row_in_db(
         db_conn_pool = db_conn_pool,
-        db_tbl_name  = id,
+        db_tbl_name  = table_name,
         value_rowuid = input_uid,
         key_column   = key_col
       )
       cat('\n### Finished Deleting Stuff from the DB.\n')
 
       cat('\n Update the UI row controls.\n')
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, id, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, table_name, add_row_permission, del_row_permission) })
 
       cat('\n# LVL-C SUB-SECTION: DELETE ROW (input$confirmDelete) ----------\n')
     })

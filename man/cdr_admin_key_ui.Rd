@@ -7,18 +7,18 @@
 cdr_admin_key_ui(id)
 }
 \arguments{
-\item{id}{primary table name - namespace ID corresponding to the
+\item{id}{your table name - namespace ID corresponding to the
 'primary_tbl_name' in the database}
 }
 \value{
 html (to be called in a shiny app only)
 }
 \description{
-User interface portion of the server module UID input textbox and submit
+User interface portion of the server module Unique ID input textbox and button
 button UI shows up for primary table if cell_edit_permission is set to T in server
 }
 \examples{
 \dontrun{
-ui <- fluidPage(cdr_admin_key_ui('primary_table_name'))
+ui <- shiny::fluidPage(crudr::cdr_admin_key_ui('primary_table_name'))
 }
 }

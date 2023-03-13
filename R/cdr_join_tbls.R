@@ -23,6 +23,12 @@ cdr_join_tbls <- function(db_tbl, chg_log_tbl, key_col){
   cat('\nRunning function: crudr::cdr_join_tbls()')
   cat('\n Combine or Recombine primary and delta tables for interface \n\n')
 
+  cat('\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+  print('key_col is: ')
+  print(key_col)
+  print({{key_col}})
+  cat('\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+
   chg_log_tbl %>%
     dplyr::group_by(OBS_ID) %>%
     dplyr::filter(WHEN_EDITED == max(WHEN_EDITED, na.rm = T)) %>%

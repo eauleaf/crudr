@@ -27,7 +27,7 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
 
   } else {
 
-    cat(glue::glue("\nCreating and populating table '{db_tbl_name}'\n"))
+    cat(glue::glue("\nCreating and populating table '{db_tbl_name}'\n\n"))
 
     if( is.null(key_field) ) {
       message('\nNo key Unique Key field specified.')
@@ -38,9 +38,13 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
     } else if ( anyDuplicated(db_tbl[[key_field]])) {
       message(glue::glue('\nKey values in field \'{key_field}\' are not unique.'))
       db_tbl <- cdr_make_unique_ids(db_tbl)
+    } else if ( !is.character(db_tbl[[key_field]]) ) {
+      message(glue::glue('\nKey field \'{key_field}\' is not a varchar. Casting Key_field as a character vector.'))
+      db_tbl[[key_field]] <- as.character(db_tbl[[key_field]])
     }
 
-    # create a database
+
+    # create a database table
     pool::dbCreateTable(conn = db_conn_pool, name = db_tbl_name, fields = db_tbl)
 
     # break the dataframe into chunks of 10,000 elements
@@ -51,11 +55,12 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
     )
 
     # append tables
-    cat(glue::glue("\nAppending data to table '{db_tbl_name}'.\n\n"))
+    cat(glue::glue("\nAppending data to table '{db_tbl_name}' with truncated query below.\n\n"))
       sql_queries <- split_db_tbl %>%
         purrr::map(., ~dplyr::mutate(., dplyr::across(dplyr::where(lubridate::is.POSIXct),as.character))) %>%
-        purrr::map(., ~pool::sqlAppendTable(DBI::ANSI(), db_tbl_name, .))
-      print(sql_queries)
+        purrr::map(., ~pool::sqlAppendTable(DBI::ANSI(), db_tbl_name, .)) %>%
+        suppressWarnings()
+      cat(paste(stringr::str_extract(sql_queries, '(?:)(.*\\n){5}'),'... etc... \n\n'))
       purrr::map(sql_queries, ~pool::dbExecute(conn = db_conn_pool, statement = .))
 
     # pool::dbAppendTable(conn = db_conn_pool, name = db_tbl_name, value = db_tbl)
@@ -72,7 +77,7 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
 
   } else {
 
-    cat(glue::glue("\nCreating new change tracking table '{chg_log_tbl_name}'\n\n"))
+    cat(glue::glue("\nCreating new change tracking table '{chg_log_tbl_name} from: '\n\n"))
 
     delta_tbl <- tibble::tibble(
       OBS_ID = character(),
@@ -84,6 +89,7 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
     )
 
     pool::dbCreateTable(db_conn_pool, chg_log_tbl_name, delta_tbl)
+    print(delta_tbl)
 
   }
 
