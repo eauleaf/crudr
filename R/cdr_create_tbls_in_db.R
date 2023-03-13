@@ -31,13 +31,13 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
 
     if( is.null(key_field) ) {
       message('\nNo key Unique Key field specified.')
-      db_tbl <- cdr_make_unique_ids(db_tbl)
+      db_tbl <- crudr::cdr_make_unique_ids(db_tbl)
     } else if ( !key_field %in% names(db_tbl) ) {
       message(glue::glue('\nSpecified field \'{key_field}\' does not exist.'))
-      db_tbl <- cdr_make_unique_ids(db_tbl)
+      db_tbl <- crudr::cdr_make_unique_ids(db_tbl)
     } else if ( anyDuplicated(db_tbl[[key_field]])) {
       message(glue::glue('\nKey values in field \'{key_field}\' are not unique.'))
-      db_tbl <- cdr_make_unique_ids(db_tbl)
+      db_tbl <- crudr::cdr_make_unique_ids(db_tbl)
     } else if ( !is.character(db_tbl[[key_field]]) ) {
       message(glue::glue('\nKey field \'{key_field}\' is not a varchar. Casting Key_field as a character vector.'))
       db_tbl[[key_field]] <- as.character(db_tbl[[key_field]])

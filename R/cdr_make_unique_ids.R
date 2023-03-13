@@ -7,7 +7,7 @@
 #' @return a table with a column of Unique IDs
 #' @export
 #'
-#' @examples cdr_make_unique_ids(utils::head(iris))
+#' @examples crudr::cdr_make_unique_ids(utils::head(iris))
 cdr_make_unique_ids <- function(db_tbl, key_field = 'UID'){
 
   message('Auto generating Unique IDs for the table.')

@@ -18,5 +18,5 @@ a table with a column of Unique IDs
 Title
 }
 \examples{
-cdr_make_unique_ids(utils::head(iris))
+crudr::cdr_make_unique_ids(utils::head(iris))
 }
