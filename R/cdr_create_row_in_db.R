@@ -15,7 +15,7 @@
 
 cdr_create_row_in_db <- function(db_conn_pool, db_tbl_name, key_col, input_uid){
 
-  print('Running: crudr::cdr_create_row_in_db()')
+  cat('\n--Running: crudr::cdr_create_row_in_db()\n')
   cat(glue::glue("\nCreating new record {input_uid} in {key_col} for table '{db_tbl_name}':\n"))
 
   sql_stmt <-

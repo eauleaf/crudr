@@ -11,7 +11,8 @@ cdr_update_db_deltas_tbl(db_conn_pool, db_tbl_name, to_deltas_tbl)
 
 \item{db_tbl_name}{string: name of the specific table the value to update is located in}
 
-\item{to_deltas_tbl}{tibble of delta values to append}
+\item{to_deltas_tbl}{tibble of delta values to append
+Note: to_deltas_tbl$WHEN_EDITED must be a string in timezone 'UTC'}
 }
 \value{
 an in-memory copy of the data just appended to the tracking table

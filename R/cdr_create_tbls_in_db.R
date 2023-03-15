@@ -16,7 +16,7 @@
 
 
 cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
-
+  cat('\n--Running: crudr::cdr_create_tbls_in_db()\n')
 
   db_tbl_name <- rlang::as_name(rlang::enquo(db_tbl))
 
@@ -44,7 +44,7 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
     }
 
 
-    # create a database table
+    cat(glue::glue("\nCreating database table '{db_tbl_name}'.\n\n"))
     pool::dbCreateTable(conn = db_conn_pool, name = db_tbl_name, fields = db_tbl)
 
     # break the dataframe into chunks of 10,000 elements
@@ -56,14 +56,14 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
 
     # append tables
     cat(glue::glue("\nAppending data to table '{db_tbl_name}' with truncated query below.\n\n"))
-      sql_queries <- split_db_tbl %>%
-        purrr::map(., ~dplyr::mutate(., dplyr::across(tidyselect::where(lubridate::is.POSIXct),as.character))) %>%
-        purrr::map(., ~pool::sqlAppendTable(DBI::ANSI(), db_tbl_name, .)) %>%
-        suppressWarnings()
-      cat(paste(stringr::str_extract(sql_queries, '(?:)(.*\\n){5}'),'... etc... \n\n'))
-      purrr::map(sql_queries, ~pool::dbExecute(conn = db_conn_pool, statement = .))
+    sql_queries <- split_db_tbl %>%
+      purrr::map(., ~dplyr::mutate(., dplyr::across(tidyselect::where(lubridate::is.POSIXct),~as.character(lubridate::with_tz(.,'UTC'))))) %>%
+      purrr::map(., ~pool::sqlAppendTable(DBI::ANSI(), db_tbl_name, .)) %>%
+      suppressWarnings()
+    cat(paste(stringr::str_extract(sql_queries, '(?:)(.*\\n){5}'),'... etc... \n\n'))
+    purrr::map(sql_queries, ~pool::dbExecute(conn = db_conn_pool, statement = .))
 
-    # pool::dbAppendTable(conn = db_conn_pool, name = db_tbl_name, value = db_tbl)
+
 
   }
 
@@ -85,7 +85,7 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
       CHG_FROM = character(),
       CHG_TO = character(),
       WHO_EDITED = character(),
-      WHEN_EDITED = as.POSIXct(NA)
+      WHEN_EDITED = lubridate::with_tz(as.POSIXct(NA), 'UTC')
     )
 
     pool::dbCreateTable(db_conn_pool, chg_log_tbl_name, delta_tbl)
@@ -97,4 +97,3 @@ cdr_create_tbls_in_db <- function(db_conn_pool, db_tbl, key_field = NULL){
 }
 
 
-# tests

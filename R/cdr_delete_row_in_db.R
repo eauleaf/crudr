@@ -31,7 +31,7 @@ cdr_delete_row_in_db <- function(db_conn_pool = db_conn_pool,
                                   db_tbl_name  = NULL,
                                   value_rowuid = NULL,
                                   key_column   = NULL){
-  cat('\n--Running function: crudr::cdr_delete_row_in_db()\n')
+  cat('\n--Running: crudr::cdr_delete_row_in_db()\n')
 
   cat('\n\nUsing this SQL statement to delete a row observation from the DB primary table:\n')
   sql_stmt <- pool::sqlInterpolate(

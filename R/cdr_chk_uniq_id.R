@@ -19,7 +19,7 @@
 #' @importFrom rlang .data
 #'
 cdr_chk_uniq_id <- function(db_tbl, input_uid, key_column, chk_for = c('create', 'delete')){
-  cat('\n -- Running: crudr::cdr_chk_uniq_id()')
+  cat('\n--Running: crudr::cdr_chk_uniq_id()\n')
 
   chk_for <- tolower(chk_for[1])
 

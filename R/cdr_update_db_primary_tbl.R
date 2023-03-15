@@ -20,9 +20,9 @@ cdr_update_db_primary_tbl <- function(db_conn_pool  = db_conn_pool,
                                       value_rowuid  = NULL,
                                       key_column    = NULL
 ){
-  cat('\n--Running function: crudr::cdr_update_db_primary_tbl()\n')
+  cat('\n--Running: crudr::cdr_update_db_primary_tbl()\n')
 
-  cat('\n\nUsing this SQL statement to overwrite data in the DB primary table:\n')
+  cat('\nUsing this SQL statement to overwrite data in the DB primary table:\n')
   sql_stmt <- pool::sqlInterpolate(
     conn = db_conn_pool,
     sql  = glue::glue('

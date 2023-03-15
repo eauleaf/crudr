@@ -11,7 +11,8 @@
 #' db_tbl_name = iris, removal = 'truncate')}
 #'
 cdr_remove_tbl<- function(db_conn_pool, db_tbl_name = NULL, removal = c('delete', 'truncate')){
-  print('cdr_remove_tbl')
+
+  cat('\n--Running: crudr::cdr_remove_tbl()\n')
 
   if( tolower(removal[1])=='delete' ){
 

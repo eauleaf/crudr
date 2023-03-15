@@ -20,7 +20,7 @@
 #' combine_prim_delt_tbls(db_tbl, chg_log_tbl, key_col)
 #' }
 cdr_join_tbls <- function(db_tbl, chg_log_tbl, key_col){
-  cat('\nRunning function: crudr::cdr_join_tbls()')
+  cat('\n--Running: crudr::cdr_join_tbls()\n')
   cat('\n Combine or Recombine primary and delta tables for interface \n\n')
 
 

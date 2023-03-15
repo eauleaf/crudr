@@ -1,12 +1,12 @@
 #' Server module to present and control a db table
 #'
 #' This function is a server module that gets database tables from db specified by pool connection
-#' and the db table name specified in 'table_name', server module manages and syncs
+#' and the db table name specified in 'db_tbl_name', server module manages and syncs
 #' changes between the UI DT, in-server-memory tbl, and backend db, for the
 #' primary as well as the corresponding deltas table (and joined table if it's
 #' presented in the UI)
 #'
-#' @param table_name primary table name - namespace ID corresponding to the
+#' @param db_tbl_name primary table name - namespace ID corresponding to the
 #'   'primary_tbl_name' in the database
 #' @param key_col name of the unique ID column in the db table (table must have
 #'   a unique ID column with unique IDs)
@@ -15,224 +15,208 @@
 #' @param cell_edit_permission T or F: to make editable the primary table from the module
 #'    (cell_edit_permission = T means the user can change the data)
 #'    (cell_edit_permission = F means the user can only see the data)
-#' @param add_row_permission T or F: allows user to add a row to the primary table from the module
-#' @param del_row_permission T or F: allows user to delete a row on the primary table from the module
-#' @param lock_fields strings: a vector of field names from the database to lock from editing
+#' @param add_row_permission T or F: allows user to add a row to the primary table of the module
+#' @param del_row_permission T or F: allows user to delete a row on the primary table of the module
+#' @param lock_fields strings: a vector of field names from the database to lock from admin editing
 #'
 #' @return returns DT reactive tables to the shiny ui environment
 #' @export
 #'
 #' @examples \dontrun{
-#' data("iris")
 #' con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
-#' iris <- dplyr::mutate(iris,
-#'            unique_id = paste0('uid_',stringr::str_pad(dplyr::row_number(),3,pad=0)))
-#' crudr::cdr_create_tbls_in_db(db_conn_pool = con, db_tbl = iris)
+#' crudr::cdr_create_tbls_in_db(con, iris)
 #' server <- function(input, output, session){
-#'              iris_r_tbl <- crudr::cdr_manage_db_tbls('iris', 'unique_id', con, session)
-#'              output$iris <- DT::renderDT(iris_r_tbl())
-#' }
-#' ui <- fluidPage(DTOutput('iris'))
-#' shinyApp(ui,server)
+#'              r_tbl <- crudr::cdr_manage_db_tbls('iris', 'UID', con, session)
+#'              output$iris <- DT::renderDT(r_tbl()) }
+#' ui <- shiny::fluidPage(DT::DTOutput('iris'))
+#' shiny::shinyApp(ui,server)
 #'}
 
-cdr_manage_db_tbls <- function(table_name, key_col, db_conn_pool, session,
+cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
                                add_row_permission   = F,
                                del_row_permission   = F,
                                cell_edit_permission = F,
                                lock_fields = c()
                                ){
 
-  shiny::moduleServer(table_name, module = function(input, output, session){
+  shiny::moduleServer(db_tbl_name, module = function(input, output, session){
 
 
-# POST TABLES PRIMARY AND DELTA ---------------------------------------------------------
-    cat('\n\n# SECTION: LOAD TABLES, INITIALIZE VARIABLES AND UI ------------------------------------\n')
+
+# SECTION 1: INITIALIZE ---------------------------------------------------
+    cat('\n\n# SECTION 1: INITIALIZE ---------------------------------------------------')
+    cat('\n  S1 - Gets and Posts the Primary and Change log tables\n')
+    table_edited <- F #initialize
 
     user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
 
-    cat('\n Create the UI above the primary table based on add row and delete row permissions\n')
-    output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('', table_name, add_row_permission, del_row_permission) })
-
-    cat('\n Download Primary table from the database and present it in the UI with permissions\n')
-    db_tbl <- dplyr::tbl(db_conn_pool, table_name) %>% dplyr::collect() %>% dplyr::relocate(dplyr::all_of(key_col))
-    proxy_db_tbl = DT::dataTableProxy('db_tbl')
-    output$db_tbl <- DT::renderDT( DT::datatable(
-      db_tbl,
-      options = list(scrollX = TRUE,  keys = TRUE),
-      callback = crudr::cdr_js_edit_ctrl(),
-      extensions = "KeyTable",
-      selection = 'none',
-      editable = if(cell_edit_permission){
-        list(target = "cell",
-             disable = list(columns = c(0,1,which(names(db_tbl) %in% lock_fields))))}
-    ))
-
-
-    cat('\n Download Delta table from the database and present it in the UI\n')
-    chg_log_tbl <- dplyr::tbl(db_conn_pool, crudr::cdr_name_delta_tbl(table_name)) %>%
-      dplyr::collect() %>% dplyr::arrange(dplyr::desc(WHEN_EDITED))
-    if(db_conn_pool$objClass[[1]] == "SQLiteConnection"){ chg_log_tbl <- dplyr::mutate(chg_log_tbl, WHEN_EDITED = lubridate::ymd_hms(WHEN_EDITED))}
-    proxy_chg_log_tbl = DT::dataTableProxy('chg_log_tbl')
-    output$chg_log_tbl <- DT::renderDT(
-      DT::datatable(chg_log_tbl, selection = 'none') %>%
-        DT::formatDate('WHEN_EDITED', method = 'toLocaleString')
-    )
-
-    cat('\n The Primary and Delta table Join occurs at the end of this script \n')
+    cat('\n  S1 - Create the UI above the primary table based on add row and delete row permissions\n')
+    output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('',db_tbl_name, add_row_permission, del_row_permission) })
+    cat('\n  S1 - Collect, sync, and present the Primary table')
+    output$db_tbl <- cdr_impart_primary_tbl(db_conn_pool,db_tbl_name, key_col, cell_edit_permission, lock_fields)
+    cat('\n  S1 - Collect, sync, and present the Deltas table')
+    output$chg_log_tbl <- cdr_impart_chg_log_tbl(db_conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name))
 
 
 
 
-# EDIT CELL ---------------------------------------------------------------
+# SECTION 2: EDIT CELL ---------------------------------------------------------------
     shiny::observeEvent(input$db_tbl_cell_edit, {
-      cat('\n\n# LVL-B SECTION: EDIT CELL ----------------------------------------------------\n')
-      cat('\n -Update Interface, DB, and R tables when user enters new data into a cell in the primary table\n')
+      cat('\n\n# SECTION 2: EDIT CELL ----------------------------------------------------')
+      cat('\n  S2 - Updates Interface, DB, and R tables when user enters new data into a cell in the primary table\n')
+      table_edited <<- T
 
-
-      # Rapid changes brake the database connection.
-      #  This catches any changes where the computer has not had time to update.
       if(nrow(input$db_tbl_cell_edit)==0) {
-        cat('\n\n ########## WHOA! Slow down there Tiger. Computers gotta think too. ###########\n\n')
+        cat('\n  S2 - WHOA! Slow down there Tiger. Computers gotta think too. \n\n')
+        table_edited <<- F
         return()
-        }
+      }
 
-      cat("\n Get the information that the User just typed into the UI and update the R primary table \n")
+
+      cat("\n  S2 - Collect the information that the User just typed into the UI\n")
       to_update <- input$db_tbl_cell_edit
       old_mem_val <- db_tbl[ to_update[['row']], to_update[['col']] ][[1]]
-      update_value = crudr::cdr_coerce_value(to_update[['value']], old_mem_val)
-      value_colname = names(db_tbl)[to_update[['col']]]
-      value_rowuid = db_tbl[ to_update[['row']], key_col ][[1]] # Unique key Id
+      update_value <- crudr::cdr_coerce_value(to_update[['value']], old_mem_val)
+      value_colname <- names(db_tbl)[to_update[['col']]]
+      value_rowuid <- db_tbl[ to_update[['row']], key_col ][[1]] # Unique key Id
+
+
+      cat("\n  S2 - If the User put in nothing, then skip out of the cell update.\n")
+      if(((is.na(old_mem_val) | is.null(old_mem_val) | identical(old_mem_val, '')) &
+          (is.na(update_value) | is.null(update_value) | identical(update_value, ''))) |
+         identical(old_mem_val, update_value)){
+        cat(glue::glue(.trim = F, "\n  S2 - The old value is '{old_mem_val}'",
+                       "and the new value is '{update_value}'. Not updating the DB.\n"))
+        table_edited <<- F
+        return()
+      }
+
+
+      cat("\n  S2 - Update the R primary table and UI proxy table\n")
       db_tbl[to_update[['row']], to_update[['col']]] <<- update_value
       DT::replaceData(proxy_db_tbl, db_tbl)
 
 
-      cat("\n If the User put in nothing, then skip out of the cell update.\n")
-      if(((is.na(old_mem_val) | is.null(old_mem_val) | identical(old_mem_val, '')) &
-          (is.na(update_value) | is.null(update_value) | identical(update_value, ''))) |
-          identical(old_mem_val, update_value)){
-        cat(paste0("\nThe old value is '",old_mem_val,"' and the new value is '",
-                    update_value,"'. Not updating the DB.\n"))
-        return()
-      }
-
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', table_name, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...',db_tbl_name, add_row_permission, del_row_permission) })
 
 
-      cat('\nCreating tibble to append changes to Delta table\n')
-      # create append tibble
+      cat('\n  S2 - Creating tibble to append changes to Delta table\n')
       to_deltas_tbl <- tibble::tibble(
         OBS_ID = value_rowuid,
         FIELD = value_colname,
         CHG_FROM = as.character(old_mem_val),
         CHG_TO = as.character(update_value),
         WHO_EDITED = user,
-        WHEN_EDITED = Sys.time()
+        WHEN_EDITED = lubridate::now(tzone = 'UTC')
       )
-      print(to_deltas_tbl)
 
-      cat('\nUpdate deltas table in R parent env\n')
-      chg_log_tbl <<- dplyr::bind_rows(chg_log_tbl, to_deltas_tbl) %>%
-        dplyr::arrange(dplyr::desc(WHEN_EDITED))
+      cat('\n  S2 - Update deltas table in R parent env\n')
+      chg_log_tbl <<- dplyr::bind_rows(chg_log_tbl, to_deltas_tbl) %>% dplyr::arrange(dplyr::desc(WHEN_EDITED))
 
-      cat('\nUpdate deltas table in Ajax\n')
+      cat('\n  S2 - Update deltas proy table for UI\n')
       DT::replaceData(proxy_chg_log_tbl, chg_log_tbl)
 
-      cat('\nUpdating primary table in Database\n')
+      cat('\n  S2 - Updating primary table in Database\n')
       crudr::cdr_update_db_primary_tbl(
         db_conn_pool  = db_conn_pool,
-        db_tbl_name   = table_name,
+        db_tbl_name   = db_tbl_name,
         update_value  = update_value,
         value_colname = value_colname,
         value_rowuid  = value_rowuid, # unique key identifier
-        key_column    = key_col  # column with unique key identifier
+        key_column    = key_col  # column name for unique key identifier
       )
 
-      cat('\nUpdating delta table in Database\n')
+      cat('\n  S2 - Updating delta table in Database\n')
       crudr::cdr_update_db_deltas_tbl(
         db_conn_pool  = db_conn_pool,
-        db_tbl_name   = crudr::cdr_name_delta_tbl(table_name),
+        db_tbl_name   = crudr::cdr_name_delta_tbl(db_tbl_name),
         to_deltas_tbl = to_deltas_tbl
       )
 
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('', table_name, add_row_permission, del_row_permission) })
-      cat('\n\n# END SECTION: EDIT CELL ----------------------------------------------------\n')
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('',db_tbl_name, add_row_permission, del_row_permission) })
+
+
 
     })
 
 
 
-
-# NEW ROW -----------------------------------------------------------------
+# SECTION 3: NEW ROW ------------------------------------------------------
     shiny::observeEvent(input$create_row_btn, {
-      cat('\n\n# LVL-B SECTION: NEW ROW --------------------------------------------------------\n')
-      cat('\n Update Interface, DB, and R tables when user clicks button input$create_row_btn\n')
+      cat('\n\n# SECTION 3: NEW ROW ------------------------------------------------------')
+      cat('\n  S3 - Update Interface, DB, and R tables when user clicks button input$create_row_btn\n')
+      table_edited <<- T
+
 
       input_uid <- stringr::str_trim(input$uid)
 
+
+      cat('\n  S3 - Check unique ID for uniqueness on "create".\n')
       out_text <- crudr::cdr_chk_uniq_id(db_tbl, input_uid, key_col, 'create')
+
 
       if(is.null(out_text)){
 
-        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', table_name, add_row_permission, del_row_permission) })
+        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...',db_tbl_name, add_row_permission, del_row_permission) })
 
         db_tbl <<- dplyr::bind_rows(tibble::tibble({{key_col}} := input_uid), db_tbl)
         DT::replaceData(proxy_db_tbl, db_tbl)
 
+        cat('\n  S3 - Run SQL to make new row in Primary table.\n')
         crudr::cdr_create_row_in_db(
           db_conn_pool  = db_conn_pool,
-          db_tbl_name   = table_name,
+          db_tbl_name   = db_tbl_name,
           key_col       = key_col,
           input_uid     = input_uid
         )
-        print(dplyr::slice(db_tbl,1))
 
-        # create append tibble
+
+        cat('\n  S3 - Create append deltas tibble.\n')
         to_deltas_tbl <- tibble::tibble(
           OBS_ID = input_uid,
           FIELD = key_col,
           CHG_FROM = "",
           CHG_TO = input_uid,
           WHO_EDITED = user,
-          WHEN_EDITED= Sys.time()
+          WHEN_EDITED = lubridate::now(tzone = 'UTC')
         )
 
-        # update parent env
+        cat('\n  S3 - Update parent env and proxy Deltas tables.\n')
         chg_log_tbl <<- dplyr::bind_rows(chg_log_tbl, to_deltas_tbl) %>% dplyr::arrange(dplyr::desc(WHEN_EDITED))
         DT::replaceData(proxy_chg_log_tbl, chg_log_tbl)
 
-        # update deltas db table
+        cat('\n  S3 - Update database Deltas table.\n')
         crudr::cdr_update_db_deltas_tbl(
           db_conn_pool = db_conn_pool,
-          db_tbl_name = crudr::cdr_name_delta_tbl(table_name),
+          db_tbl_name = crudr::cdr_name_delta_tbl(db_tbl_name),
           to_deltas_tbl = to_deltas_tbl
         )
 
       }
 
-      # update the UI
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, table_name, add_row_permission, del_row_permission) })
-      cat('\n# END SECTION: NEW ROW (input$create_row_btn) --------------------------------------------------------\n')
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text,db_tbl_name, add_row_permission, del_row_permission) })
+
 
     })
-# END NEW ROW -----------------------------------------------------------------
 
 
 
-# DELETE ROW BUTTON PUSH --------------------------------------------------
+# SECTION 4: DELETE ROW REQUEST ---------------------------------------------------
     shiny::observeEvent(input$delete_row_btn, {
-      cat('\n\n# LVL-B SECTION: DELETE ROW REQUEST -----------------------------------------------------\n')
+      cat('\n\n# SECTION 4: DELETE ROW REQUEST ---------------------------------------------------\n')
+      cat('\n  S4 - Throws a delete popup to determine if the user is serious\n')
+
 
       input_uid <- stringr::str_trim(input$uid)
-      print(input_uid)
 
-
+      cat('\n  S4 - Check unique ID for uniqueness on "delete".\n')
       out_text <- crudr::cdr_chk_uniq_id(db_tbl, input_uid, key_col, 'delete')
 
-      if(is.null(out_text)){
-        cat('\nAsking if they are sure they want to delete.\n')
 
-        ns <- shiny::NS(table_name)
+      if(is.null(out_text)){
+        cat('\n  S4 - Asking if they are sure they want to delete.\n')
+
+        ns <- shiny::NS(db_tbl_name)
         shiny::showModal(
           shiny::modalDialog(
             footer = NULL,
@@ -243,9 +227,7 @@ cdr_manage_db_tbls <- function(table_name, key_col, db_conn_pool, session,
 
       } else {
 
-        cat('\n Update the UI row controls.\n\n')
-        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, table_name, add_row_permission, del_row_permission) })
-        cat('\n# LVL-B SUB-SECTION: DELETE ROW (update DB tables upon confirm) ----------\n\n')
+        output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text,db_tbl_name, add_row_permission, del_row_permission) })
 
       }
 
@@ -253,28 +235,29 @@ cdr_manage_db_tbls <- function(table_name, key_col, db_conn_pool, session,
 
 
 
-# DELETE CONFIRM ----------------------------------------------------------
+# SECTION 5: CONFIRM ROW DELETE -----------------------------------------------
     shiny::observeEvent(input$confirmDelete, {
-    cat('\n# LVL-B SUB-SECTION: DELETE ROW (update DB tables upon confirm) ----------')
-      cat('\n -Update Interface, DB, and R tables when user clicks confirm button')
-      cat("\nOkie Dokie. They're sure they want to delete.\n")
+    cat('\n# SECTION 5: CONFIRM ROW DELETE -----------------------------------------------')
+      cat('\n  S5 - Updates Interface, DB, and R tables when user clicks delete confirm button\n')
+      table_edited <<- T
+
+      cat("\n  S5 - Okie Dokie. They're sure they want to delete.\n")
 
       out_text <- NULL
       input_uid <- stringr::str_trim(input$uid)
-      print(paste('+++++++++++++++++',input_uid,'++++++++++++++++++++++++'))
-
       shiny::removeModal()
 
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...', table_name, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...',db_tbl_name, add_row_permission, del_row_permission) })
 
-      cat('\nWhich values are being deleted?\n')
+
+      cat('\n  S5 - These values are being deleted:\n')
       vals_to_delete <- db_tbl %>%
         dplyr::filter( input_uid == db_tbl[[key_col]] ) %>%
         dplyr::select(tidyselect::where(~!all(is.na(.))))
       print(vals_to_delete)
 
-      cat('\nReplacing all the data in the row with NAs, from back to front.')
-      cat('\nCreating list of tibbles to append  to deltas table for observation:')
+      cat('\n  S5 - Replacing all the data in the row with NAs, from back to front.')
+      cat('\n  S5 - And, creating this list of tibbles to append to the deltas table:\n')
       to_deltas_tbl <- vals_to_delete %>%
         rev() %>%
         purrr::imap(
@@ -284,66 +267,83 @@ cdr_manage_db_tbls <- function(table_name, key_col, db_conn_pool, session,
             CHG_FROM    = as.character(.x),
             CHG_TO      = NA,
             WHO_EDITED  = user,
-            WHEN_EDITED = Sys.time() )
-        )
+            WHEN_EDITED = lubridate::now(tzone = 'UTC')
+            ) )
       print(to_deltas_tbl)
 
-      cat('\nUpdate deltas table in R parent env\n')
+      cat('\n  S5 - Updating deltas table in the R parent env and UI\n')
       chg_log_tbl <<- to_deltas_tbl %>%
         dplyr::bind_rows() %>%
         dplyr::bind_rows(chg_log_tbl) %>%
         dplyr::arrange(dplyr::desc(WHEN_EDITED))
-
-      cat('\nUpdate deltas table in UI\n')
       DT::replaceData(proxy_chg_log_tbl, chg_log_tbl)
 
-      cat('\nUpdate primary table in R parent env\n')
+      cat('\n  S5 - Updating Primary table in R parent env and UI\n')
       db_tbl <<- db_tbl %>% dplyr::filter( input_uid != db_tbl[[key_col]] )
-
-      cat('\nUpdate primary table in UI\n')
       DT::replaceData(proxy_db_tbl, db_tbl)
 
-      cat('\nUpdating deltas table in database...\n')
-      to_deltas_tbl %>%
-        purrr::map(
-          ~ crudr::cdr_update_db_deltas_tbl(
-            db_conn_pool  = db_conn_pool,
-            db_tbl_name   = crudr::cdr_name_delta_tbl(table_name),
-            to_deltas_tbl = . )
-        )
+      cat('\n  S5 - Updating deltas table in database...\n')
+      purrr::map(.x = to_deltas_tbl,
+                 .f = ~ crudr::cdr_update_db_deltas_tbl(
+                   db_conn_pool  = db_conn_pool,
+                   db_tbl_name   = crudr::cdr_name_delta_tbl(db_tbl_name),
+                   to_deltas_tbl = .x )
+      )
 
-      cat(paste0('\nDeleting row from primary table in the DB.\n'))
+      cat(paste0('\n  S5 - Deleting row from primary table in the DB.\n'))
       crudr::cdr_delete_row_in_db(
         db_conn_pool = db_conn_pool,
-        db_tbl_name  = table_name,
+        db_tbl_name  = db_tbl_name,
         value_rowuid = input_uid,
         key_column   = key_col
       )
-      cat('\n### Finished Deleting Stuff from the DB.\n')
 
-      cat('\n Update the UI row controls.\n')
-      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text, table_name, add_row_permission, del_row_permission) })
+      output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html(out_text,db_tbl_name, add_row_permission, del_row_permission) })
 
-      cat('\n# LVL-C SUB-SECTION: DELETE ROW (input$confirmDelete) ----------\n')
     })
 
 
-    # shiny::eventReactive(list(input$create_row_btn, input$delete_row_btn, input$confirmDelete),
-    #                      {cdr_join_tbls(db_tbl, chg_log_tbl, key_col)},
-    #                      ignoreNULL=FALSE)
+
+# SECTION 6: MULTIUSER CHECK ------------------------------------------------
+    shiny::observeEvent( list(input$db_tbl_cell_edit, input$create_row_btn, input$confirmDelete), ignoreInit = T, {
+      cat('\n\n# SECTION 6: MULTIUSER CHECK ------------------------------------------------')
+      cat('\n  S6 - Re-syncs the tables if a different User made a change to the primary table')
+
+      if ( table_edited ) {
+
+        cat('\n  S6 - Checking if someone else made updates to the tables ... ')
+        row_count_deltas_db <- dplyr::tbl(con, crudr::cdr_name_delta_tbl('IRIS')) %>%
+          dplyr::summarize(n()) %>% dplyr::collect() %>% as.integer()
+        if( nrow(chg_log_tbl) != row_count_deltas_db ){
+          cat('\n  S6 - Yep, there are new deltas. Someone else is inputting data. Updating your local tables.\n')
+          output$db_tbl <- cdr_impart_primary_tbl(db_conn_pool,db_tbl_name, key_col, cell_edit_permission, lock_fields)
+          output$chg_log_tbl <- cdr_impart_chg_log_tbl(db_conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name))
+        } else {
+          cat('\n  S6 - Nope. You are the only one making changes right now. The only one. Just you--by your lonesome.')
+          cat('\n  S6 - Maybe they ought to pay you more.\n')
+        }
+
+      } else {
+        cat('\n  S6 - No need to re-sync yet.\n')
+      }
+
+    })
 
 
 
-    # POST TABLE JOIN --------------------------------------------------------------------
-    cat('\n\n# LVL-A SECTION: JOIN PRIMARY AND DELTA TABLES AFTER UPDATE ---------------------')
-    shiny::eventReactive(
-      eventExpr = list(input$db_tbl_cell_edit, input$create_row_btn, input$confirmDelete),
-      valueExpr = {cdr_join_tbls(db_tbl, chg_log_tbl, key_col)},
-      ignoreNULL=FALSE
-    )
+# SECTION 7: TABLE JOINS -------------------------------------------------
+    shiny::eventReactive(  list(input$db_tbl_cell_edit, input$create_row_btn, input$confirmDelete), ignoreNULL=FALSE, {
+      cat('\n\n# SECTION 7: TABLE JOINS -------------------------------------------------')
+      cat('\n  S7 - Join Primary and Deltas tables as the modules returned output:\n')
+      cdr_join_tbls(db_tbl, chg_log_tbl, key_col)
+    })
+
+
 
 
   } # END shiny::moduleServer
 
+
   )} # END crudr::cdr_manage_db_tbls
+
 

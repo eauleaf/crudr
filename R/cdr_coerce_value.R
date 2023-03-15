@@ -13,6 +13,8 @@
 
 cdr_coerce_value <- function(input, old_mem_val){
 
+  cat('\n--Running: crudr::cdr_coerce_value()\n')
+
   if(is.character(input)){ input <- stringr::str_trim(input) }
 
   if(!rlang::is_logical(old_mem_val)){
