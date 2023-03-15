@@ -312,7 +312,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
       if ( table_edited ) {
 
         cat('\n  S6 - Checking if someone else made updates to the tables ... ')
-        row_count_deltas_db <- dplyr::tbl(con, crudr::cdr_name_delta_tbl('IRIS')) %>%
+        row_count_deltas_db <- dplyr::tbl(db_conn_pool, crudr::cdr_name_delta_tbl('IRIS')) %>%
           dplyr::summarize(n()) %>% dplyr::collect() %>% as.integer()
         if( nrow(chg_log_tbl) != row_count_deltas_db ){
           cat('\n  S6 - Yep, there are new deltas. Someone else is inputting data. Updating your local tables.\n')

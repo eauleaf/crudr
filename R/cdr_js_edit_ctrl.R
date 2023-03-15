@@ -34,6 +34,9 @@ cdr_js_edit_ctrl <- function(){
     "});"
   )
 
+  # table.on('click', 'td', function() {
+  # $(this).find('input').attr('original-value', input.val())
+  # });
   # print(js)
 
   DT::JS(js)
