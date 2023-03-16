@@ -12,7 +12,8 @@ cdr_manage_db_tbls(
   add_row_permission = F,
   del_row_permission = F,
   cell_edit_permission = F,
-  lock_fields = c()
+  lock_fields = c(),
+  multiuser_update_wait = 0
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ a unique ID column with unique IDs)}
 (cell_edit_permission = F means the user can only see the data)}
 
 \item{lock_fields}{strings: a vector of field names from the database to lock from admin editing}
+
+\item{multiuser_update_wait}{numeric: minimum time in seconds between checking for
+and incorporating any data changes made by other users}
 }
 \value{
 returns DT reactive tables to the shiny ui environment

@@ -28,7 +28,7 @@ cdr_join_tbls <- function(db_tbl, chg_log_tbl, key_col){
     dplyr::group_by(OBS_ID) %>%
     dplyr::filter(WHEN_EDITED == max(WHEN_EDITED, na.rm = T)) %>%
     dplyr::select(OBS_ID, WHO_EDITED, WHEN_EDITED) %>%
-    dplyr::left_join(x = dplyr::mutate(db_tbl, {{key_col}} := as.character(!!dplyr::sym(key_col))),
+    dplyr::left_join(x = dplyr::mutate(db_tbl, "{key_col}" := as.character(!!dplyr::sym(key_col))),
               y = .,
               by = stats::setNames('OBS_ID', key_col),
               suffix = c('','TBL2')) %>%

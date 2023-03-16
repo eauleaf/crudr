@@ -16,7 +16,7 @@ cdr_make_unique_ids <- function(db_tbl, key_field = 'UID'){
     tibble::tibble() %>%
     dplyr::mutate(
     .before = 1,
-    {{key_field}} := paste0('ID-',stringr::str_pad(dplyr::row_number(),nchar(nrow(.)),pad=0))
+    "{key_field}" := paste0('ID-',stringr::str_pad(dplyr::row_number(),nchar(nrow(.)),pad=0))
   )
 
 }

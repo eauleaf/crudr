@@ -18,6 +18,8 @@
 #' @param add_row_permission T or F: allows user to add a row to the primary table of the module
 #' @param del_row_permission T or F: allows user to delete a row on the primary table of the module
 #' @param lock_fields strings: a vector of field names from the database to lock from admin editing
+#' @param multiuser_update_wait numeric: minimum time in seconds between checking for
+#' and incorporating any data changes made by other users
 #'
 #' @return returns DT reactive tables to the shiny ui environment
 #' @export
@@ -36,7 +38,8 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
                                add_row_permission   = F,
                                del_row_permission   = F,
                                cell_edit_permission = F,
-                               lock_fields = c()
+                               lock_fields = c(),
+                               multiuser_update_wait = 0
                                ){
 
   shiny::moduleServer(db_tbl_name, module = function(input, output, session){
@@ -46,7 +49,11 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 # SECTION 1: INITIALIZE ---------------------------------------------------
     cat('\n\n# SECTION 1: INITIALIZE ---------------------------------------------------')
     cat('\n  S1 - Gets and Posts the Primary and Change log tables\n')
-    table_edited <- F #initialize
+
+    #initialize
+    table_edited <- F
+    last_multiuser_timechk <- Sys.time()
+
 
     user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
 
@@ -121,9 +128,9 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
         db_conn_pool  = db_conn_pool,
         db_tbl_name   = db_tbl_name,
         update_value  = update_value,
-        value_colname = value_colname,
-        value_rowuid  = value_rowuid, # unique key identifier
-        key_column    = key_col  # column name for unique key identifier
+        value_colname = value_colname, # specific column name to insert value
+        value_rowuid  = value_rowuid, # specific row UID to insert value
+        key_column    = key_col
       )
 
       cat('\n  S2 - Updating delta table in Database\n')
@@ -159,7 +166,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 
         output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('... Updating Database ...',db_tbl_name, add_row_permission, del_row_permission) })
 
-        db_tbl <<- dplyr::bind_rows(tibble::tibble({{key_col}} := input_uid), db_tbl)
+        db_tbl <<- dplyr::bind_rows(tibble::tibble("{key_col}" := input_uid), db_tbl)
         DT::replaceData(proxy_db_tbl, db_tbl)
 
         cat('\n  S3 - Run SQL to make new row in Primary table.\n')
@@ -309,7 +316,11 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
       cat('\n\n# SECTION 6: MULTIUSER CHECK ------------------------------------------------')
       cat('\n  S6 - Re-syncs the tables if a different User made a change to the primary table')
 
-      if ( table_edited ) {
+
+      # only check for multiuser updates after the number of seconds in multiuser_update_wait
+      if ( table_edited & (as.numeric(Sys.time() - last_multiuser_timechk > multiuser_update_wait ) ) ) {
+
+        last_multiuser_timechk <- Sys.time() # reset
 
         cat('\n  S6 - Checking if someone else made updates to the tables ... ')
         row_count_deltas_db <- dplyr::tbl(db_conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name)) %>%
@@ -319,7 +330,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
           output$db_tbl <- cdr_impart_primary_tbl(db_conn_pool,db_tbl_name, key_col, cell_edit_permission, lock_fields)
           output$chg_log_tbl <- cdr_impart_chg_log_tbl(db_conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name))
         } else {
-          cat('\n  S6 - Nope. You are the only one making changes right now. The only one. Just you--by your lonesome.')
+          cat('\n  S6 - Nope. You are the only one making changes right now. Just you--by your lonesome.')
           cat('\n  S6 - Maybe they ought to pay you more.\n')
         }
 
