@@ -26,7 +26,7 @@ library(crudr)
 # Overview
 
 This package is a CRUD app. The idea behind crudr is to make it easy for
-you or your organization to centrally maintain a single source of data
+you or your organization to centrally maintain a single source of golden data
 while at the same time allowing distributed control of the data for
 updates.
 
@@ -34,44 +34,50 @@ updates.
 ## A Common Problem
 
 Each company I have worked for has different departments with different
-spreadsheets that track the same information. For instance, let's say
-you have a bunch of store locations in your company. Ideally, someone in
-your company has all the updated information about those locations, e.g.
-the store's mailing address, phone number, email, manager, manager's
-email, etc. In most companies, that information actually resides in a
-lot of different places and it almost always has errors--managers move
-around, store leases expire, and outdated spreadsheets are all over the
-company. Further, Joe might be in charge of the locations, but Sally
-knows the Manager info, etc. You need that data to be correct, joined,
-posted, and available for everyone, but that's hard to do. This package
-helps to solve this distributed updating and distributed use problem.
+spreadsheets that track the same information. For instance, let's say you have a
+bunch of store locations in your company. Ideally, someone in your company has
+all the updated information about those locations, e.g. the store's mailing
+address, phone number, email, manager, manager's email, etc. In most companies,
+that information actually resides in a lot of different places and it almost
+always has errors because managers move around, store leases expire, and the
+spreadsheets that you got from those maintainers become outdated. Further, Joe
+might be in charge of the locations, but Sally knows the Manager info, etc. You
+need that data to be correct, joined, posted, and available for everyone, at any
+time time, but that's hard to do. This package helps to solve this distributed
+updating and distributed use problem.
+
 
 ## Goals for crudr
 
-The goals with crudr are to: 
+The goals with crudr are to:
 
-1. Present data from a relational database
-through a Shiny app for viewing and management 
-2. Make it easy to control which admin users can update columns in a DB table 
+1. Present data from a relational database through a Shiny app for viewing and
+management
+
+2. Separate data viewers from data managers / administrators
+
+2. Make it easy to control which admin users can update columns in a DB table
+
 3. Keep a record of all changes made to the database table in a corresponding
-change log table 
-4. Allow more than one simultaneous editor without crashes. 
-5. Be database agnostic.
+change log table
+
+4. Allow more than one simultaneous editors without crashes
+
+5. Be database agnostic
 
 
 ### Other Notes
 
--   Crudr works by synching tables between the Admin User machines, the
-    Host Server (my desktop), and the Database
--   The code is built with modules so that you can manage and present
+-   Crudr works by synching tables between the User's Computer, the
+    Host Server, and the Database
+-   The code is built with Shiny modules so that you can manage and present
     several tables in the same app
--   Databases that as been tested are SQLite, Postgres, and Snowflake
--   The code is in development, so names and parameters aren't
-    yet decided, but they're pretty good. 
--   The database checks periodically of others made changes to the data; if so, the UI and server refresh. 
+-   SQLite, Postgres, and Snowflake are the databases that I have tested
+-   The database checks periodically whether other admins have made changes to the data; if so, the UI and server refresh
 -   I would love if someone at RStudio could improve the code or just
-    take the code and make it their own. It'd be great if people could use the 
-    app broadly. I don't know how to make it really robust; I'm a novice. 
+take the code and make it their own. It'd be great if people could use this app
+broadly since this problem exists so often, but I don't know how to make it
+really robust since I'm a novice.
 
 ##
 
@@ -83,9 +89,8 @@ To install crudr, run:
 remotes::install_github('eauleaf/crudr')
 ```
 
-The Example is built from these packages, so you might want to install:
-
-Note: pool needs the most updated version on CRAN. 
+The Example is built from these packages, so you might want to install the below 
+packages. Note: the package 'pool' must be the most updated version on CRAN. 
 
 ```{r packages, eval = F}
 install.packages(c(
@@ -103,7 +108,7 @@ install.packages(c(
 There are really only 2 crudr functions you need to know:
 **`cdr_make_db_tbls()`** & **`cdr_manage_db_tbls()`**
 
-### cdr_make_db_tbls() 
+### 1) cdr_make_db_tbls() 
 This function writes two tables into your
 database. You hand this function a tibble and a pool connection, and
 it'll write that table and a corresponding change tracking
@@ -289,17 +294,21 @@ shiny::shinyApp(ui, server)
 
 In the app above, you're the admin. So, go ahead and make changes in this admin table. 
 Double-click on a cell and change the data. Your app then writes that data to the 
-database, updates the change log table, write the change log data to the database, and 
-then waits for your next change. 
+database, updates the change log table, writes the change log data to the database, and 
+then awaits for your next change. 
 
-That's pretty much it. If you want to set permissions, you can do so in your 
+That's pretty much it. Close down the app. Then reopen it by running the same app code again. 
+The app loads the data from the database and all the changes that you made to the data 
+should be there. 
+
+Also, if you want to set admin permissions for specific people, you can do so in your 
 shiny server with something like:
 
 ```{r user_control, eval = F}
 
 user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
 
-if (user == 'my_name'){
+if (user == 'my.name'){
   edit_permission = T
 } else {
   edit_permission = F
@@ -311,7 +320,7 @@ Then pass edit_permission into the `cdr_manage_db_tbls()` permission argument(s)
 makes the admin table just another table for anyone but you.
 
 
-## Other stuff
+## Other Info
 
 
 For a Postgres connection, use `RPostgreSQL::PostgreSQL()` as the driver, since 
@@ -330,16 +339,27 @@ con = pool::dbPool(
 To close your database connection, run: `pool::poolClose(con)`
 
 
+## Future Improvements
+
 There are quite a few things I need to do to make this better. Maybe I'll get to these
-sometime. 
+sometime. Depends on whether anyone uses the app. 
 
 1. Support for more databases, like sqlserver, oracle, etc. (I don't think 
-it'd be that hard, I just need a test connection.)
-2. At some point I should create a function where you give a date and the function
-rebuilds the database with the data as it was at that particular point in time. 
+it'd be that hard, I just need a test connection. If anyone knows how to make 
+a free test connection to another database that I haven't yet supported, let me know.)
+
+2. When 2 or more admin users are making concurrent changes, update just the 
+specific elements that the other person changed rather than refreshing the entire tables.
+
+2. At some point I should create a function, cdr_reconstruct_tbl_as_of(date = Sys.Date - 1, ignore_fields = c()), where you hand a date or datetime to the function and the function returns a tibble of the database as it was as of a particular point in time.
+
 3. Figure out how to push data to the database asynchronously so the user never 
-has to wait. 
-4. Write automatic tests for the functions. 
-5. Figure out package exports so I'm not exporting everything. 
+has to wait for the data trips to the database. 
+
+4. Figure out how to write automatic tests for the functions, then write a bunch of tests.
+
+5. Figure out package exports so I'm not exporting every single function.
+
+6. Interact with someone who knows how to simplify my code, and make it more readable.
 
 
