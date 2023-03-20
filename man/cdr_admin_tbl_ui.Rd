@@ -22,6 +22,6 @@ shiny UI. Just a DT output wrapped in a namespace
 }
 \examples{
 \dontrun{
-ui <- fluidPage(mod_tbl_ui('primary_table_name'))
+ui <- fluidPage(crudr::cdr_manage_db_tbls('iris'))
 }
 }

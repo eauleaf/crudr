@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' ui <- fluidPage(mod_tbl_ui('primary_table_name'))
+#' ui <- fluidPage(crudr::cdr_manage_db_tbls('iris'))
 #' }
 cdr_admin_tbl_ui <- function(id, tbl = 'db_tbl'){
   shinycssloaders::withSpinner(
