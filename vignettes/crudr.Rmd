@@ -25,7 +25,7 @@ library(crudr)
 
 # Overview
 
-This package is a CRUD app. The idea behind crudr is to make it easy for
+This package is a CRUD app. The idea behind `crudr` is to make it easy for
 you or your organization to centrally maintain a single source of golden data
 while at the same time allowing distributed control of the data for
 updates.
