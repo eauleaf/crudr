@@ -4,15 +4,14 @@
 \alias{cdr_update_db_deltas_tbl}
 \title{Populates deltas table when user updates primary table}
 \usage{
-cdr_update_db_deltas_tbl(db_conn_pool, db_tbl_name, to_deltas_tbl)
+cdr_update_db_deltas_tbl(conn_pool, db_tbl_name, to_deltas_tbl)
 }
 \arguments{
-\item{db_conn_pool}{pool connection object: the pool of connections established by the session}
+\item{conn_pool}{pool connection object: the pool of connections established by the session}
 
 \item{db_tbl_name}{string: name of the specific table the value to update is located in}
 
-\item{to_deltas_tbl}{tibble of delta values to append
-Note: to_deltas_tbl$WHEN_EDITED must be a string in timezone 'UTC'}
+\item{to_deltas_tbl}{tibble of delta values to append}
 }
 \value{
 an in-memory copy of the data just appended to the tracking table

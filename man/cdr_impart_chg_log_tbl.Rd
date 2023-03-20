@@ -5,12 +5,12 @@
 \title{Download database change log and sync it to user interface}
 \usage{
 cdr_impart_chg_log_tbl(
-  db_conn_pool,
+  conn_pool,
   chg_log_tbl_name = crudr::cdr_name_delta_tbl(db_tbl_name)
 )
 }
 \arguments{
-\item{db_conn_pool}{pool connection object from package 'pool'}
+\item{conn_pool}{pool connection object from package 'pool'}
 
 \item{chg_log_tbl_name}{string: name of the database table you're managing with suffix "_DELTAS"}
 }
@@ -21,5 +21,5 @@ a DT object to present the change log table
 Download database change log and sync it to user interface
 }
 \examples{
-\dontrun{cdr_impart_primary_tbl(con, 'IRIS_DELTAS')}
+\dontrun{cdr_impart_primary_tbl(con, 'iris_DELTAS')}
 }

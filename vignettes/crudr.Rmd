@@ -1,0 +1,343 @@
+---
+title: "crudr"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{crudr}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(crudr)
+```
+
+## 
+
+# Overview
+
+This package is a CRUD app. The idea behind crudr is to make it easy for
+you or your organization to centrally maintain a single source of data
+while at the same time allowing distributed control of the data for
+updates.
+
+
+## A Common Problem
+
+Each company I have worked for has different departments with different
+spreadsheets that track the same information. For instance, let's say
+you have a bunch of store locations in your company. Ideally, someone in
+your company has all the updated information about those locations, e.g.
+the store's mailing address, phone number, email, manager, manager's
+email, etc. In most companies, that information actually resides in a
+lot of different places and it almost always has errors--managers move
+around, store leases expire, and outdated spreadsheets are all over the
+company. Further, Joe might be in charge of the locations, but Sally
+knows the Manager info, etc. You need that data to be correct, joined,
+posted, and available for everyone, but that's hard to do. This package
+helps to solve this distributed updating and distributed use problem.
+
+## Goals for crudr
+
+The goals with crudr are to: 
+
+1. Present data from a relational database
+through a Shiny app for viewing and management 
+2. Make it easy to control which admin users can update columns in a DB table 
+3. Keep a record of all changes made to the database table in a corresponding
+change log table 
+4. Allow more than one simultaneous editor without crashes. 
+5. Be database agnostic.
+
+
+### Other Notes
+
+-   Crudr works by synching tables between the Admin User machines, the
+    Host Server (my desktop), and the Database
+-   The code is built with modules so that you can manage and present
+    several tables in the same app
+-   Databases that as been tested are SQLite, Postgres, and Snowflake
+-   The code is in development, so names and parameters aren't
+    yet decided, but they're pretty good. 
+-   The database checks periodically of others made changes to the data; if so, the UI and server refresh. 
+-   I would love if someone at RStudio could improve the code or just
+    take the code and make it their own. It'd be great if people could use the 
+    app broadly. I don't know how to make it really robust; I'm a novice. 
+
+##
+
+# Getting Started
+
+To install crudr, run:
+
+```{r install-crudr, eval = F}
+remotes::install_github('eauleaf/crudr')
+```
+
+The Example is built from these packages, so you might want to install:
+
+Note: pool needs the most updated version on CRAN. 
+
+```{r packages, eval = F}
+install.packages(c(
+  'shiny',
+  'shinydashboard',
+  'tidyverse',
+  'lubridate',
+  'DT',
+  'pool'
+))
+```
+
+## 2 crudr functions
+
+There are really only 2 crudr functions you need to know:
+**`cdr_make_db_tbls()`** & **`cdr_manage_db_tbls()`**
+
+### cdr_make_db_tbls() 
+This function writes two tables into your
+database. You hand this function a tibble and a pool connection, and
+it'll write that table and a corresponding change tracking
+table in your database. If you already have the table, tell `cdr_make_db_tbls()` the
+name of that database table and the function will then only create the
+change tracking table. If you already have both tables, the function
+doesn't do anything except write some notes out to your R console saying
+it's not going to mess with tables that already exist. Note: For crudr
+to work, each row of the table you write must have a unique ID that's
+recorded as a character. If you don't have a unique ID key field in your
+table, `cdr_make_db_tbls()` will automatically make one for you named "UID".
+
+
+##### Example for cdr_make_db_tbls():
+For example, if you want to
+create a database on your machine called 'test.db' and want to put in a
+table called 'iris', you'd write:
+
+```{r sqlite-db, eval = F}
+con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'test.db'))
+```
+
+Then you'd call the function with the above connection and a table to
+write.
+
+```{r create-tbls, eval = F}
+cdr_make_db_tbls(con, iris)
+```
+
+If you already had a Unique ID key field in your table, just tell the
+function the name of your field with `cdr_make_db_tbls(con, iris,
+key_field = 'name_of_your_unique_id_field')`.
+
+Okay, the function should have written in your database a table called 'iris' 
+and a second table called 'iris_DELTAS'. The table names are case sensitive. You can see the tables that the function wrote by running the following:
+
+```{r eval = F}
+paste(pool::dbListTables(con), collapse = ', ')
+```
+
+You should see the printout: "iris" and "iris_DELTAS". These two tables are your original table,
+which is the the primary table, and a secondary table named like your first, but
+with '\*\_DELTAS'. Your primary table will now have a unique ID field if it
+didn't already, and the secondary deltas table is a change log. Any change you
+make to the primary table through the admin user interface, which we'll soon do,
+gets recorded in the deltas table.
+
+As a side note, if you want to remove the tables later, you can that with:
+
+```{r eval = F}
+pool::dbRemoveTable(con,'iris')
+pool::dbRemoveTable(con,'iris_DELTAS')
+```
+
+Or, just delete the database 'test.db'.
+
+### cdr_manage_db_tbls() 
+
+This function is the workhorse of the package. If you remember one function, this is the one. 
+The function only has a handful of arguments. You have to tell this function: 
+
+1. What the name of your table is. In this case it's, *db_tbl_name = 'iris'*.
+1. The field with your Unique ID. In this case it's *key_col = 'UID'*.
+1. What the database connection is. In this case it's, *conn_pool = con*.
+
+That's about it. There are other arguments you can change if you want to control 
+who can change things in the primary (admin) table. 
+
+`cdr_manage_db_tbls()` returns 1 table directly and 2 tables invisibly.
+
+The direct table output in the above example is: `iris_r_tbl`
+
+When it comes out of Shiny, you call the table by acting like it's a function, so 
+you say `iris_r_tbl()`. This table is yours; you can do whatever you want with it. 
+You can send it out in any format you like, change the column names, filter it, 
+join it to something else... Whatever you like. It's an output. 
+
+The 2 tables that `cdr_manage_db_tbls()` returns invisibly are 'db_tbl' and 'chg_log_tbl'. These
+are not really changeable like the direct output table. Rather, these tables are direct representations of what's in your database. 
+
+### db_tbl 
+This invisible table is your administrator table. It's the database table you wrote into the 
+database, so in our case, it should be the iris data. Whoever maintains your 
+dataset gets access to db_tbl, and can make changes to the data held in the database. 
+You collect and present this table in Shiny by calling it with function:
+
+**crudr::cdr_admin_tbl_ui('iris', 'db_tbl')**.
+
+### chg_log_tbl 
+This invisible table keeps track of what changes you made to 'db_tbl'. You never need to do 
+much with this table. It's just there to record which administrator did what to the 
+database table, and when they made the change. It should be empty right now, but 
+let's change that. You collect and present this table in Shiny by calling it with function:
+
+**crudr::cdr_admin_tbl_ui('iris', 'chg_log_tbl')**.
+
+
+##### One more function to note: 
+
+**crudr::cdr_admin_key_ui()**
+
+`crudr::cdr_admin_key_ui()` writes the html for admin changes to add or 
+delete rows. Just pass it the name of your database table in quotes, like 'iris'. 
+
+
+
+Okay. We're done. Let's launch an app.
+
+
+##
+
+# Launch a Tiny Shiny App
+
+To manage the database tables, now let's launch a bare-bones shiny app. We'll 
+only need the functions described above from crudr. The other stuff comes from 
+packages *shiny*, *shinydashboard*, and *DT*. 
+
+
+Here's the code for your app. Copy it into your RStudio console and run it. 
+
+
+## CRUDR Example 
+```{r tiny_crudr_app, eval = F}
+
+con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'test.db'))
+
+header <- shinydashboard::dashboardHeader(title = 'Tiny CRUDR Example')
+
+sidebar <- shinydashboard::dashboardSidebar(
+  shinydashboard::sidebarMenu(
+    id = 'tabs',
+    shinydashboard::menuItem(
+      text = "Iris Data",
+      startExpanded = TRUE,
+      shinydashboard::menuSubItem("Administrator Table", tabName = "datr_editable", icon = shiny::icon('edit')),
+      shinydashboard::menuSubItem("Change Log", tabName = "datr_change_log"),
+      shinydashboard::menuSubItem("Iris End User View", tabName = "datr_end_usr")
+    )))
+
+body <- shinydashboard::dashboardBody(
+  shinydashboard::tabItems(
+    shinydashboard::tabItem(tabName = "datr_editable", htmltools::div(crudr::cdr_admin_key_ui('iris'), crudr::cdr_admin_tbl_ui('iris', 'db_tbl'))),
+    shinydashboard::tabItem(tabName = "datr_change_log", crudr::cdr_admin_tbl_ui('iris', 'chg_log_tbl')),
+    shinydashboard::tabItem(tabName = "datr_end_usr", DT::DTOutput('iris_db_data'))
+  ))
+
+ui <- shinydashboard::dashboardPage(header, sidebar, body)
+
+
+
+server <- function(input, output, session){
+
+
+  iris_r_tbl <- crudr::cdr_manage_db_tbls(
+   db_tbl_name = 'iris',
+    key_col = 'UID',
+    conn_pool = con,
+    session = session,
+    add_row_permission = T,
+    del_row_permission = T,
+    cell_edit_permission = T,
+    lock_fields = c()
+  )
+
+  output$iris_db_data <- DT::renderDT(
+    DT::formatDate(table   = DT::datatable(iris_r_tbl()),
+                   columns = c('WHEN_EDITED_LAST'),
+                   method  = 'toLocaleString')
+  )
+
+
+
+}
+
+
+shiny::shinyApp(ui, server)
+
+```
+
+# Make Changes
+
+In the app above, you're the admin. So, go ahead and make changes in this admin table. 
+Double-click on a cell and change the data. Your app then writes that data to the 
+database, updates the change log table, write the change log data to the database, and 
+then waits for your next change. 
+
+That's pretty much it. If you want to set permissions, you can do so in your 
+shiny server with something like:
+
+```{r user_control, eval = F}
+
+user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
+
+if (user == 'my_name'){
+  edit_permission = T
+} else {
+  edit_permission = F
+}
+
+```
+
+Then pass edit_permission into the `cdr_manage_db_tbls()` permission argument(s). That
+makes the admin table just another table for anyone but you.
+
+
+## Other stuff
+
+
+For a Postgres connection, use `RPostgreSQL::PostgreSQL()` as the driver, since 
+that's what I tested on. Example Postgres connection below. 
+
+```{r postgres_connection, eval = F}
+con = pool::dbPool(
+           DBI::dbConnect( RPostgreSQL::PostgreSQL(),
+                           dbname = "test",
+                           host = "localhost",
+                           port = "5432",
+                           user = Sys.getenv('dsn_uid'),
+                           password = Sys.getenv('dsn_pwd')))
+```
+
+To close your database connection, run: `pool::poolClose(con)`
+
+
+There are quite a few things I need to do to make this better. Maybe I'll get to these
+sometime. 
+
+1. Support for more databases, like sqlserver, oracle, etc. (I don't think 
+it'd be that hard, I just need a test connection.)
+2. At some point I should create a function where you give a date and the function
+rebuilds the database with the data as it was at that particular point in time. 
+3. Figure out how to push data to the database asynchronously so the user never 
+has to wait. 
+4. Write automatic tests for the functions. 
+5. Figure out package exports so I'm not exporting everything. 
+
+

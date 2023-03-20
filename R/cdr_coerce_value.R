@@ -1,37 +1,52 @@
 #' change cell value using DT::coerceValue
 #'
-#' @param input cell_edit value
+#' @param input_val cell_edit value
 #' @param old_mem_val type from database table
 #'
-#' @return input value coerced to the correct df_tbl value
+#' @return input_val value coerced to the correct df_tbl value
 #' @export
 #'
 #' @examples \dontrun{
-#' input <- c('true','t','truthy','tri',1,0,'false','bla bla bla','a',' ','', 'na','none','no')
-#' purrr::set_names(purrr::map(input, ~crudr::cdr_coerce_value(., TRUE)), input)
+#' crudr::cdr_coerce_value(c('2023-03-17', '2023-03-17T14:28:24Z'), lubridate::now())
+#' input_val <- c('true','t','truthy','tri',1,0,5,-5,'false','bla bla bla','a',' ','',
+#' 'na','none','no', 'yes', 'off', 'on', 'no', 'f','F','T', 'NO')
+#' purrr::set_names(purrr::map(input_val, ~crudr::cdr_coerce_value(., TRUE)), input_val)
 #' }
 
-cdr_coerce_value <- function(input, old_mem_val){
-
+cdr_coerce_value <- function(input_val, old_mem_val){
   cat('\n--Running: crudr::cdr_coerce_value()\n')
 
-  if(is.character(input)){ input <- stringr::str_trim(input) }
+  safe_coersion <- purrr::possibly(.f = DT::coerceValue, otherwise = NA)
+
+
+  if(is.character(input_val)){ input_val <- stringr::str_trim(input_val) }
+
 
   if(!rlang::is_logical(old_mem_val)){
 
-    out <- DT::coerceValue(input, old_mem_val)
+    out <- safe_coersion(input_val, old_mem_val)
 
   } else if (rlang::is_logical(old_mem_val)) {
 
-    letter_vec <- stringr::str_split(stringr::str_to_upper(input), '|')[[1]]
-    if(any(c('T', 1) %in% letter_vec)){ out <- TRUE
-    } else if (any(c('F', 0) %in% letter_vec)){ out <- FALSE
-    } else { out <- NA }
+    if( stringr::str_detect(input_val, '(?i)(true)|(^t$)|1|(yes)|(^y$)|(on)') ){
+      out <- TRUE
+    } else if ( stringr::str_detect(input_val, '(?i)(false)|(^f$)|0|(^n$)|(no)') ){
+      out <- FALSE
+    } else {
+      out <- NA
+      }
 
   }
+
 
   return(out)
 
 }
+
+
+
+
+
+
 
 

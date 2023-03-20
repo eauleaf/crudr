@@ -5,13 +5,13 @@
 \title{removes a specified table by deleting the table or by removing just the table data (truncating)}
 \usage{
 cdr_remove_tbl(
-  db_conn_pool,
+  conn_pool,
   db_tbl_name = NULL,
   removal = c("delete", "truncate")
 )
 }
 \arguments{
-\item{db_conn_pool}{pool connection object: the pool of connections established by the session}
+\item{conn_pool}{pool connection object: the pool of connections established by the session}
 
 \item{db_tbl_name}{string: name of the specific table the value to update is located in}
 
@@ -24,7 +24,7 @@ Boolean describing success
 removes a specified table by deleting the table or by removing just the table data (truncating)
 }
 \examples{
-\dontrun{cdr_remove_tbl(db_conn_pool = pool_connection_object,
+\dontrun{cdr_remove_tbl(conn_pool = pool_connection,
 db_tbl_name = iris, removal = 'truncate')}
 
 }

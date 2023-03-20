@@ -5,7 +5,7 @@
 \title{Download database table and sync it to user interface}
 \usage{
 cdr_impart_primary_tbl(
-  db_conn_pool,
+  conn_pool,
   db_tbl_name,
   key_col,
   cell_edit_permission,
@@ -13,7 +13,7 @@ cdr_impart_primary_tbl(
 )
 }
 \arguments{
-\item{db_conn_pool}{pool connection object from package 'pool'}
+\item{conn_pool}{pool connection object from package 'pool'}
 
 \item{db_tbl_name}{string: name of the database table you're managing}
 

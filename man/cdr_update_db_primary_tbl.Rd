@@ -6,7 +6,7 @@
 corresponding db table, unique row ID, and column}
 \usage{
 cdr_update_db_primary_tbl(
-  db_conn_pool = db_conn_pool,
+  conn_pool = conn_pool,
   db_tbl_name = NULL,
   update_value = NULL,
   value_colname = NULL,
@@ -15,7 +15,7 @@ cdr_update_db_primary_tbl(
 )
 }
 \arguments{
-\item{db_conn_pool}{pool connection object: the pool of connections established by the session}
+\item{conn_pool}{pool connection object: the pool of connections established by the session}
 
 \item{db_tbl_name}{string: name of the specific table the value to update is located in}
 

@@ -7,7 +7,7 @@
 cdr_manage_db_tbls(
   db_tbl_name,
   key_col,
-  db_conn_pool,
+  conn_pool,
   session,
   add_row_permission = F,
   del_row_permission = F,
@@ -23,7 +23,7 @@ cdr_manage_db_tbls(
 \item{key_col}{name of the unique ID column in the db table (table must have
 a unique ID column with unique IDs)}
 
-\item{db_conn_pool}{db connection from package 'pool'}
+\item{conn_pool}{db connection from package 'pool'}
 
 \item{session}{current shiny session}
 
@@ -53,7 +53,7 @@ presented in the UI)
 \examples{
 \dontrun{
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
-crudr::cdr_create_tbls_in_db(con, iris)
+crudr::cdr_make_db_tbls(con, iris)
 server <- function(input, output, session){
              r_tbl <- crudr::cdr_manage_db_tbls('iris', 'UID', con, session)
              output$iris <- DT::renderDT(r_tbl()) }

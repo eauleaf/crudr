@@ -5,14 +5,14 @@
 \title{Removes specified row from db table}
 \usage{
 cdr_delete_row_in_db(
-  db_conn_pool = db_conn_pool,
+  conn_pool = conn_pool,
   db_tbl_name = NULL,
   value_rowuid = NULL,
   key_column = NULL
 )
 }
 \arguments{
-\item{db_conn_pool}{pool connection object: the pool of connections established by the session}
+\item{conn_pool}{pool connection object: the pool of connections established by the session}
 
 \item{db_tbl_name}{string: name of the specific table the value to update is located in}
 
@@ -31,10 +31,10 @@ Note: not implemented in a UI button, but here for administrator use
 \dontrun{
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
 iris <- dplyr::mutate(iris, unique_id = paste0('uid_',dplyr::row_number()))
-crudr::cdr_create_tbls_in_db(db_conn_pool = con, db_tbl = iris)
+crudr::cdr_make_db_tbls(conn_pool = con, db_tbl = iris)
 print(here::here('iris.db'))
 crudr::cdr_delete_row_in_db(
-  db_conn_pool = con,
+  conn_pool = con,
   db_tbl_name = 'iris', #'iris_deltas'
   value_rowuid = 'uid_1',
   key_column = 'unique_id'

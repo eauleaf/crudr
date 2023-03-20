@@ -10,7 +10,7 @@
 #'   'primary_tbl_name' in the database
 #' @param key_col name of the unique ID column in the db table (table must have
 #'   a unique ID column with unique IDs)
-#' @param db_conn_pool db connection from package 'pool'
+#' @param conn_pool db connection from package 'pool'
 #' @param session current shiny session
 #' @param cell_edit_permission T or F: to make editable the primary table from the module
 #'    (cell_edit_permission = T means the user can change the data)
@@ -26,7 +26,7 @@
 #'
 #' @examples \dontrun{
 #' con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
-#' crudr::cdr_create_tbls_in_db(con, iris)
+#' crudr::cdr_make_db_tbls(con, iris)
 #' server <- function(input, output, session){
 #'              r_tbl <- crudr::cdr_manage_db_tbls('iris', 'UID', con, session)
 #'              output$iris <- DT::renderDT(r_tbl()) }
@@ -34,7 +34,7 @@
 #' shiny::shinyApp(ui,server)
 #'}
 
-cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
+cdr_manage_db_tbls <- function(db_tbl_name, key_col, conn_pool, session,
                                add_row_permission   = F,
                                del_row_permission   = F,
                                cell_edit_permission = F,
@@ -46,23 +46,23 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 
 
 
-# SECTION 1: INITIALIZE ---------------------------------------------------
+# SECTION 1: INITIALIZE TABLES ---------------------------------------------------
     cat('\n\n# SECTION 1: INITIALIZE ---------------------------------------------------')
     cat('\n  S1 - Gets and Posts the Primary and Change log tables\n')
 
-    #initialize
+    #initialize variables
     table_edited <- F
     last_multiuser_timechk <- Sys.time()
-
-
     user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
+
+
 
     cat('\n  S1 - Create the UI above the primary table based on add row and delete row permissions\n')
     output$key_editor_ui <- shiny::renderUI({ crudr::cdr_row_editor_html('',db_tbl_name, add_row_permission, del_row_permission) })
-    cat('\n  S1 - Collect, sync, and present the Primary table')
-    output$db_tbl <- cdr_impart_primary_tbl(db_conn_pool,db_tbl_name, key_col, cell_edit_permission, lock_fields)
-    cat('\n  S1 - Collect, sync, and present the Deltas table')
-    output$chg_log_tbl <- cdr_impart_chg_log_tbl(db_conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name))
+    cat('\n  S1 - Primary table: collect, sync, and present')
+    output$db_tbl <- cdr_impart_primary_tbl(conn_pool,db_tbl_name, key_col, cell_edit_permission, lock_fields)
+    cat('\n  S1 - Deltas table: collect, sync, and present')
+    output$chg_log_tbl <- cdr_impart_chg_log_tbl(conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name))
 
 
 
@@ -94,6 +94,11 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
          identical(old_mem_val, update_value)){
         cat(glue::glue(.trim = F, "\n  S2 - The old value is '{old_mem_val}'",
                        "and the new value is '{update_value}'. Not updating the DB.\n"))
+
+        cat("\n  S2 - Update just the R primary table and UI proxy table\n")
+        db_tbl[to_update[['row']], to_update[['col']]] <<- update_value
+        DT::replaceData(proxy_db_tbl, db_tbl)
+
         table_edited <<- F
         return()
       }
@@ -114,7 +119,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
         CHG_FROM = as.character(old_mem_val),
         CHG_TO = as.character(update_value),
         WHO_EDITED = user,
-        WHEN_EDITED = lubridate::now(tzone = 'UTC')
+        WHEN_EDITED = lubridate::now(tzone = crudr::cdr_adj_timezone(conn_pool))
       )
 
       cat('\n  S2 - Update deltas table in R parent env\n')
@@ -125,7 +130,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 
       cat('\n  S2 - Updating primary table in Database\n')
       crudr::cdr_update_db_primary_tbl(
-        db_conn_pool  = db_conn_pool,
+        conn_pool     = conn_pool,
         db_tbl_name   = db_tbl_name,
         update_value  = update_value,
         value_colname = value_colname, # specific column name to insert value
@@ -135,7 +140,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 
       cat('\n  S2 - Updating delta table in Database\n')
       crudr::cdr_update_db_deltas_tbl(
-        db_conn_pool  = db_conn_pool,
+        conn_pool     = conn_pool,
         db_tbl_name   = crudr::cdr_name_delta_tbl(db_tbl_name),
         to_deltas_tbl = to_deltas_tbl
       )
@@ -171,7 +176,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 
         cat('\n  S3 - Run SQL to make new row in Primary table.\n')
         crudr::cdr_create_row_in_db(
-          db_conn_pool  = db_conn_pool,
+          conn_pool  = conn_pool,
           db_tbl_name   = db_tbl_name,
           key_col       = key_col,
           input_uid     = input_uid
@@ -185,7 +190,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
           CHG_FROM = "",
           CHG_TO = input_uid,
           WHO_EDITED = user,
-          WHEN_EDITED = lubridate::now(tzone = 'UTC')
+          WHEN_EDITED = lubridate::now(tzone = crudr::cdr_adj_timezone(conn_pool))
         )
 
         cat('\n  S3 - Update parent env and proxy Deltas tables.\n')
@@ -194,7 +199,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 
         cat('\n  S3 - Update database Deltas table.\n')
         crudr::cdr_update_db_deltas_tbl(
-          db_conn_pool = db_conn_pool,
+          conn_pool = conn_pool,
           db_tbl_name = crudr::cdr_name_delta_tbl(db_tbl_name),
           to_deltas_tbl = to_deltas_tbl
         )
@@ -274,7 +279,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
             CHG_FROM    = as.character(.x),
             CHG_TO      = NA,
             WHO_EDITED  = user,
-            WHEN_EDITED = lubridate::now(tzone = 'UTC')
+            WHEN_EDITED = lubridate::now(tzone = crudr::cdr_adj_timezone(conn_pool))
             ) )
       print(to_deltas_tbl)
 
@@ -292,14 +297,14 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
       cat('\n  S5 - Updating deltas table in database...\n')
       purrr::map(.x = to_deltas_tbl,
                  .f = ~ crudr::cdr_update_db_deltas_tbl(
-                   db_conn_pool  = db_conn_pool,
+                   conn_pool  = conn_pool,
                    db_tbl_name   = crudr::cdr_name_delta_tbl(db_tbl_name),
                    to_deltas_tbl = .x )
       )
 
       cat(paste0('\n  S5 - Deleting row from primary table in the DB.\n'))
       crudr::cdr_delete_row_in_db(
-        db_conn_pool = db_conn_pool,
+        conn_pool = conn_pool,
         db_tbl_name  = db_tbl_name,
         value_rowuid = input_uid,
         key_column   = key_col
@@ -323,12 +328,12 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
         last_multiuser_timechk <- Sys.time() # reset
 
         cat('\n  S6 - Checking if someone else made updates to the tables ... ')
-        row_count_deltas_db <- dplyr::tbl(db_conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name)) %>%
+        row_count_deltas_db <- dplyr::tbl(conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name)) %>%
           dplyr::summarize(n()) %>% dplyr::collect() %>% as.integer()
         if( nrow(chg_log_tbl) != row_count_deltas_db ){
           cat('\n  S6 - Yep, there are new deltas. Someone else is inputting data. Updating your local tables.\n')
-          output$db_tbl <- cdr_impart_primary_tbl(db_conn_pool,db_tbl_name, key_col, cell_edit_permission, lock_fields)
-          output$chg_log_tbl <- cdr_impart_chg_log_tbl(db_conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name))
+          output$db_tbl <- cdr_impart_primary_tbl(conn_pool,db_tbl_name, key_col, cell_edit_permission, lock_fields)
+          output$chg_log_tbl <- cdr_impart_chg_log_tbl(conn_pool, crudr::cdr_name_delta_tbl(db_tbl_name))
         } else {
           cat('\n  S6 - Nope. You are the only one making changes right now. Just you--by your lonesome.')
           cat('\n  S6 - Maybe they ought to pay you more.\n')
@@ -342,7 +347,7 @@ cdr_manage_db_tbls <- function(db_tbl_name, key_col, db_conn_pool, session,
 
 
 
-# SECTION 7: TABLE JOINS -------------------------------------------------
+# SECTION 7: OUTPUT & TABLE JOINS -------------------------------------------------
     shiny::eventReactive(  list(input$db_tbl_cell_edit, input$create_row_btn, input$confirmDelete), ignoreNULL=FALSE, {
       cat('\n\n# SECTION 7: TABLE JOINS -------------------------------------------------')
       cat('\n  S7 - Join Primary and Deltas tables as the modules returned output:\n')
