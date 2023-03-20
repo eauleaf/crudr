@@ -230,6 +230,8 @@ Here's the code for your app. Copy it into your RStudio console and run it.
 
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'test.db'))
 
+crudr::cdr_make_db_tbls(con, iris)
+
 header <- shinydashboard::dashboardHeader(title = 'Tiny CRUDR Example')
 
 sidebar <- shinydashboard::dashboardSidebar(

@@ -29,24 +29,28 @@ cdr_impart_primary_tbl <- function(
   proxy_db_tbl <<- DT::dataTableProxy('db_tbl')
 
 
-  posix_fields <- db_tbl %>% purrr::map_lgl(lubridate::is.POSIXct) %>% purrr::keep(.,.) %>% names()
-
-  DT::renderDT(
-    DT::datatable(
-      db_tbl,
-      options = list(scrollX = TRUE,  keys = TRUE),
-      callback = crudr::cdr_js_edit_ctrl(),
-      extensions = "KeyTable",
-      selection = 'none',
-      editable = if (cell_edit_permission) {
-        list(target = "cell",
-             disable = list(columns = c(0, 1, which(
-               names(db_tbl) %in% lock_fields
-             ))))
-      }
-    ) %>%
-      DT::formatDate(.,columns = posix_fields, method  = 'toLocaleString')
+  out <- DT::datatable(
+    db_tbl,
+    options = list(scrollX = TRUE,  keys = TRUE),
+    callback = crudr::cdr_js_edit_ctrl(),
+    extensions = "KeyTable",
+    selection = 'none',
+    editable = if (cell_edit_permission) {
+      list(target = "cell",
+           disable = list(columns = c(0, 1, which(
+             names(db_tbl) %in% lock_fields
+           ))))
+    }
   )
+
+  # format posix fields
+  posix_fields <- db_tbl %>% purrr::map_lgl(lubridate::is.POSIXct) %>% .[. == T] %>% names()
+  if( length(posix_fields) > 0 ) {
+    out <- DT::formatDate(out, columns = posix_fields, method  = 'toLocaleString')
+  }
+
+
+  DT::renderDT( out )
 
 }
 

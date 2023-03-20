@@ -29,8 +29,6 @@ cdr_append_tbl <- function(conn_pool, db_tbl, db_tbl_name = NULL, chunk_size = 1
 
   db_tbl <- tibble::tibble(db_tbl)
 
-  # adjust for timezone treatment between databases
-  # time_zone <- cdr_adj_timezone(conn_pool)
 
   # break the dataframe into chunks of elements to execute so you're not passing too much text over to a database
   split_count <- round(chunk_size/ncol(db_tbl))
