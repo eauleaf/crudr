@@ -21,9 +21,11 @@ knitr::opts_chunk$set(
 library(crudr)
 ```
 
+
 ## 
 
 # Overview
+
 
 This package is a CRUD app. The idea behind `crudr` is to make it easy
 for you or your organization to centrally maintain a single source of
@@ -144,7 +146,8 @@ write.
 cdr_make_db_tbls(con, iris)
 ```
 
-This code will join the new column, 'UID', onto your `iris` data and push the table to your test database.
+This code will join the new column, 'UID', onto your `iris` data and
+push the table to your test database.
 
 If you already created a Unique ID key field in your table, just tell
 the function the name of that field with
@@ -215,8 +218,8 @@ masses.
 
 However, the 2 tables that `cdr_manage_db_tbls()` returns invisibly. You
 pick these up with functions `cdr_deliver_admin_tbl()` &
-`cdr_deliver_chg_log_tbl()`. The tables these functions return are
-not like the direct output table. Rather, these tables are direct
+`cdr_deliver_chg_log_tbl()`. The tables these functions return are not
+like the direct output table. Rather, these tables are direct
 representations of what's in your database.
 
 ### 3) cdr_deliver_admin_tbl()
@@ -224,12 +227,12 @@ representations of what's in your database.
 This function picks up your invisible administrator table already
 rendered in a DT object. The table is the primary database table that
 you wrote into your test database when you ran `cdr_make_db_tbls()`, so
-in our test case, `cdr_deliver_admin_tbl('iris')` will deliver
-'iris' data for a data curator. That is, whoever maintains your primary
-dataset should have access to this admin table, and that person can make
-changes to the data held in the database via this output in Shiny. This
-function gets called in the UI portion of Shiny. A full example is below
-in the section named CRUDR Example.
+in our test case, `cdr_deliver_admin_tbl('iris')` will deliver 'iris'
+data for a data curator. That is, whoever maintains your primary dataset
+should have access to this admin table, and that person can make changes
+to the data held in the database via this output in Shiny. This function
+gets called in the UI portion of Shiny. A full example is below in the
+section named CRUDR Example.
 
 ### 4) cdr_deliver_chg_log_tbl()
 
@@ -237,15 +240,15 @@ This function picks up your invisible history-of-changes table already
 rendered in a DT object. This table is the '\*\_DELTAS' database table
 that you wrote into your test database when you ran
 `cdr_make_db_tbls()`, so in our test case,
-`cdr_deliver_chg_log_tbl('iris')` will deliver a change history
-about changes that your data curators made to the table 'iris'. That is,
-every change that someone makes to your primary dataset gets recorded to
-this admin table. You don't need to do much with this table. It's just
-there to record which administrator did what to the database table, and
-when they made the change. This function gets called in the UI portion
-of Shiny. A full example is below in the section named CRUDR Example.
-This table should be empty right now, but let's change that. Let's
-launch the Shiny app.
+`cdr_deliver_chg_log_tbl('iris')` will deliver a change history about
+changes that your data curators made to the table 'iris'. That is, every
+change that someone makes to your primary dataset gets recorded to this
+admin table. You don't need to do much with this table. It's just there
+to record which administrator did what to the database table, and when
+they made the change. This function gets called in the UI portion of
+Shiny. A full example is below in the section named CRUDR Example. This
+table should be empty right now, but let's change that. Let's launch the
+Shiny app.
 
 ## 
 
@@ -318,7 +321,7 @@ shiny::shinyApp(ui, server)
 
 ```
 
-##
+## 
 
 # Make Some Changes
 
