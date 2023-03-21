@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">crudr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.22</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@ manager, manager’s email, etc. In most companies, that information
 actually resides in a lot of different places and it almost always has
 errors because managers move around, store leases expire, and the
 spreadsheets that you got from those maintainers become outdated.
-Further, Joe might be in charge of the locations, but Sally knows the
+Further, Sally might be in charge of the Locations, but Jose knows the
 Manager info, etc. You need that data to be correct, joined, posted, and
 available for everyone, at any time time, but maintaining quality data
 is hard to do. This package helps to solve the distributed data updating
@@ -125,11 +125,20 @@ present several tables in the same app</li>
 tested</li>
 <li>The database checks periodically whether other admins have made
 changes to the data; if so, the UI and server refresh</li>
-<li>I would love if someone at RStudio could improve the code or just
-take the code and make it their own. It’d be great if people could use
-this app broadly since this problem exists so often, but I don’t know
-how to make it really robust since I’m a novice.</li>
+<li>I would love if someone at Posit would improve the code or just take
+the code and make it their own. It’d be great if people could use this
+app broadly since this problem exists so often, but I don’t know how to
+make it really robust since I’m a hobbyist.</li>
 </ul>
+</div>
+<div class="section level4">
+<h4 id="example-app">Example App<a class="anchor" aria-label="anchor" href="#example-app"></a>
+</h4>
+<p>Below is an example of a minimal app. This one is connected to a
+Postgres database for testing.</p>
+<div class="figure">
+<video src="www/Screencast%20from%202023-03-20%2019-46-58.webm" style="width:100.0%" controls=""><a href="www/Screencast%20from%202023-03-20%2019-46-58.webm"></a></video><p class="caption">crudr app</p>
+</div>
 </div>
 </div>
 <div class="section level3">
@@ -202,11 +211,11 @@ running the following:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu">pool</span><span class="fu">::</span><span class="fu">dbListTables</span><span class="op">(</span><span class="va">con</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">', '</span><span class="op">)</span></span></code></pre></div>
 <p>You should see the printout: “iris” and “iris_DELTAS”. These two
-tables are your original table with a ‘UID’ field and a secondary table
-named like your first, but with ‘*_DELTAS’. The ‘iris_DELTAS’ deltas
-table is a change log. Any change you make to the primary table through
-the admin user interface, which we’ll create below, gets recorded in the
-deltas table.</p>
+tables are your original table, but with a ‘UID’ field, and a secondary
+table named similar to your first, but with ‘*_DELTAS’. The
+‘iris_DELTAS’ deltas table is a change log. Any change you make to the
+primary table through the admin user interface, which we’ll create
+below, gets recorded in the deltas table.</p>
 <p>As a side note, if you want to remove the tables later, you can that
 with:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -219,30 +228,29 @@ with:</p>
 <h4 id="cdr_manage_db_tbls">2) cdr_manage_db_tbls()<a class="anchor" aria-label="anchor" href="#cdr_manage_db_tbls"></a>
 </h4>
 <p>This function is the workhorse of the package. If you remember one
-function, this is the one. The function only has a handful of arguments.
+function, this is the one. The function has only a handful of arguments.
 At a minimum, you have to tell this function:</p>
 <ol style="list-style-type: decimal">
 <li>What the name of your table is. In our example case it’s,
 <em>db_tbl_name = ‘iris’</em>.</li>
-<li>The field with your Unique ID. In our example case it’s <em>key_col
+<li>The field with your Unique ID. In our example case it’s, <em>key_col
 = ‘UID’</em>.</li>
 <li>What the database connection is. In our example case it’s,
 <em>conn_pool = con</em>.</li>
 </ol>
 <p>That’s about it. There are other arguments you can change if you want
-to control who can update things in the primary (admin) table, but you
-can just ‘F1’ to get the function for that.</p>
+to control who can update things in the administrator table, but you can
+just read the function details later for that info.</p>
 <p>So, <code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code> returns 1 table directly and 2
 tables invisibly.</p>
-<p>The direct table output in the example app below is:
-<code>iris_r_tbl</code></p>
-<p>The main R table is an output of the functions, as in
-<code>iris_r_tbl &lt;- dr_manage_db_tbls()</code>. Because it’s a
-reactive table, you use the table by acting like it’s a function, but
-otherwise you treat it like a table. So, if you wanted to select some
-columns or filter some rows, you’d write,
+<p>The direct output table in the example app below goes into:
+<code>iris_r_tbl</code>, as in
+<code>iris_r_tbl &lt;- dr_manage_db_tbls()</code>. Because the output is
+a reactive table, you use the variable by acting like it’s a function,
+i.e. by putting parenthesis, ‘()’, after the variable. So, if you wanted
+to select some columns or filter some rows, you’d write,
 <code>iris_r_tbl() %&gt;% select(some_columns) %&gt;% filter(some_rows)</code>,
-just like with any other table object.</p>
+just like with any other dataframe object.</p>
 <p>The <code>iris_r_tbl()</code> table is yours; you can do whatever you
 want with it. You can send it out in any format you like, change the
 column names, filter it, join it to something else…whatever. It’s an
@@ -253,11 +261,12 @@ output for the masses.</p>
 <h3 id="the-2-invisible-tables">The 2 Invisible Tables<a class="anchor" aria-label="anchor" href="#the-2-invisible-tables"></a>
 </h3>
 <p>However, the 2 tables that <code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code> returns
-invisibly. You pick these up with functions
+invisibly you have to pick up with the functions
 <code><a href="../reference/cdr_deliver_admin_tbl.html">cdr_deliver_admin_tbl()</a></code> &amp;
 <code><a href="../reference/cdr_deliver_chg_log_tbl.html">cdr_deliver_chg_log_tbl()</a></code>. The tables these functions
 return are not like the direct output table. Rather, these tables are
-direct representations of what’s in your database.</p>
+direct representations of what’s in your database. Let’s look at these 2
+functions.</p>
 <div class="section level4">
 <h4 id="cdr_deliver_admin_tbl">3) cdr_deliver_admin_tbl()<a class="anchor" aria-label="anchor" href="#cdr_deliver_admin_tbl"></a>
 </h4>
@@ -268,9 +277,10 @@ you wrote into your test database when you ran
 <code>cdr_deliver_admin_tbl('iris')</code> will deliver ‘iris’ data for
 a data curator. That is, whoever maintains your primary dataset should
 have access to this admin table, and that person can make changes to the
-data held in the database via this output in Shiny. This function gets
-called in the UI portion of Shiny. A full example is below in the
-section named CRUDR Example.</p>
+data held in the database via this output in Shiny.
+<code>cdr_deliver_admin_tbl('iris')</code> gets called in the UI portion
+of Shiny. A full example is below in the section named CRUDR Example
+Code.</p>
 </div>
 <div class="section level4">
 <h4 id="cdr_deliver_chg_log_tbl">4) cdr_deliver_chg_log_tbl()<a class="anchor" aria-label="anchor" href="#cdr_deliver_chg_log_tbl"></a>
@@ -281,13 +291,13 @@ table that you wrote into your test database when you ran
 <code><a href="../reference/cdr_make_db_tbls.html">cdr_make_db_tbls()</a></code>, so in our test case,
 <code>cdr_deliver_chg_log_tbl('iris')</code> will deliver a change
 history about changes that your data curators made to the table ‘iris’.
-That is, every change that someone makes to your primary dataset gets
-recorded to this admin table. You don’t need to do much with this table.
-It’s just there to record which administrator did what to the database
-table, and when they made the change. This function gets called in the
-UI portion of Shiny. A full example is below in the section named CRUDR
-Example. This table should be empty right now, but let’s change that.
-Let’s launch the Shiny app.</p>
+That is, crudr records every change that someone makes to your primary
+dataset within this change-log table. You don’t need to do much with
+this table. It’s just there to record which administrator did what to
+the database table, and when they made the change. This function gets
+called in the UI portion of Shiny. A full example is below in the
+section named CRUDR Example Code. This table should be empty right now,
+but let’s change that.</p>
 </div>
 </div>
 <div class="section level3">
@@ -297,14 +307,12 @@ Let’s launch the Shiny app.</p>
 <div class="section level2">
 <h2 id="a-tiny-shiny-app">A Tiny Shiny App<a class="anchor" aria-label="anchor" href="#a-tiny-shiny-app"></a>
 </h2>
-<p>To manage the database tables, now let’s launch a bare-bones shiny
-app. We’ll only need the ‘crudr’ functions described above. The other
-stuff comes from packages <em>shiny</em>, <em>shinydashboard</em>, and
-<em>DT</em>.</p>
-<p>Here’s the code for your app. Copy it into your RStudio console and
-run it.</p>
+<p>To manage the database tables, let’s launch a bare-bones shiny app.
+We’ll only need the ‘crudr’ functions described above. The other code
+comes from packages <em>shiny</em>, <em>shinydashboard</em>, and
+<em>DT</em>. Copy the code into your RStudio console and have at it.</p>
 <div class="section level3">
-<h3 id="crudr-example">CRUDR Example<a class="anchor" aria-label="anchor" href="#crudr-example"></a>
+<h3 id="crudr-example-code">CRUDR Example Code<a class="anchor" aria-label="anchor" href="#crudr-example-code"></a>
 </h3>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -335,9 +343,7 @@ run it.</p>
 <span><span class="va">ui</span> <span class="op">&lt;-</span> <span class="fu">shinydashboard</span><span class="fu">::</span><span class="fu">dashboardPage</span><span class="op">(</span><span class="va">header</span>, <span class="va">sidebar</span>, <span class="va">body</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span><span class="op">{</span></span>
-<span></span>
 <span></span>
 <span>  <span class="va">iris_r_tbl</span> <span class="op">&lt;-</span> <span class="fu">crudr</span><span class="fu">::</span><span class="fu"><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls</a></span><span class="op">(</span></span>
 <span>   db_tbl_name <span class="op">=</span> <span class="st">'iris'</span>,</span>
@@ -356,7 +362,6 @@ run it.</p>
 <span>                   method  <span class="op">=</span> <span class="st">'toLocaleString'</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span></span>
@@ -369,26 +374,30 @@ run it.</p>
 <div class="section level2">
 <h2 id="make-some-changes">Make Some Changes<a class="anchor" aria-label="anchor" href="#make-some-changes"></a>
 </h2>
-<p>In the app above, you’re the admin. So, go ahead and make changes in
-this administrator table. Double-click on a cell in change the data.
-Your app will write your change to the database, update the change log
-table data, writes the change log data to the database, and then wait
-for your next change. The ‘Iris End User View’ corresponds to the
-<code>iris_r_tbl()</code> output from the server. Make your user output
-awesome, like maybe add a download button to your output view by
-dropping in the datatable code:</p>
+<p>In the app above, you’re the admin. So, go ahead and make some
+changes in this administrator table. Double-click on a cell or press
+‘F2’ to enter edit mode, and then change the data. Your app will write
+your change to the database, update the change log table, write the
+change-log data to the database, and then await your next change. The
+‘Iris End User View’ corresponds to the <code>iris_r_tbl()</code> direct
+output from the server. Make your direct output awesome, like add some
+buttons to it by dropping in some DT code:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="fu">iris_r_tbl</span><span class="op">(</span><span class="op">)</span>, </span>
 <span>              extensions <span class="op">=</span> <span class="st">'Buttons'</span>, </span>
 <span>              options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dom <span class="op">=</span> <span class="st">'tB'</span>, buttons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'copy'</span>, <span class="st">'csv'</span>, <span class="st">'excel'</span>,<span class="st">'pdf'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>That’s pretty much it. Close down the app. Then reopen it by running
+<p>That’s pretty much it. Close down the app. Then reopen it by calling
 the same app code again. The app should load the data from the database
 and all the changes that you made to the data should be there.</p>
+<p>If you want to see how crudr acts with multiple admin users, open a
+second app and then go back and forth making some data changes in each
+app. When you make a change, crudr checks if anyone else made a change
+and refreshes if so.</p>
 <div class="section level3">
 <h3 id="user-control-changes">User Control Changes<a class="anchor" aria-label="anchor" href="#user-control-changes"></a>
 </h3>
 <p>If you want to set admin permissions for specific people, you can do
-so in your shiny server with something like:</p>
+so in your shiny server with some code like this:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">user</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">session</span><span class="op">$</span><span class="va">user</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.info.html" class="external-link">Sys.info</a></span><span class="op">(</span><span class="op">)</span><span class="op">[[</span><span class="st">'user'</span><span class="op">]</span><span class="op">]</span>, <span class="va">session</span><span class="op">$</span><span class="va">user</span><span class="op">)</span></span>
@@ -398,17 +407,20 @@ so in your shiny server with something like:</p>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="va">okay_to_change</span> <span class="op">=</span> <span class="cn">F</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Then pass ‘okay_to_change into the <code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code>
-permission argument(s). That makes the admin table just another table
-when a typical user opens it, but you get to change it all you like as
-long as you’re the user called ’your.name’.</p>
+<p>Then pass your ‘okay_to_change’ variable into the
+<code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code> permission argument(s) like
+‘cell_edit_permission = okay_to_change’ or ‘add_row_permission =
+okay_to_change’. A FALSE in these parameters makes the admin table just
+another table when a typical user opens it, but whoever signs is as
+‘your.name’ can change the data in the database that everyone else
+sees.</p>
 </div>
 <div class="section level3">
 <h3 id="other-useful-info">Other Useful Info<a class="anchor" aria-label="anchor" href="#other-useful-info"></a>
 </h3>
 <p>For a Postgres database connection, use
-<code>RPostgreSQL::PostgreSQL()</code> as the driver, since that’s what
-I tested crudr on. Example Postgres connection below.</p>
+<code>RPostgreSQL::PostgreSQL()</code> as the driver, since that’s the
+driver I tested crudr on. Example Postgres connection below.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">=</span> <span class="fu">pool</span><span class="fu">::</span><span class="fu"><a href="http://rstudio.github.io/pool/reference/dbPool.html" class="external-link">dbPool</a></span><span class="op">(</span></span>
 <span>           <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span> <span class="fu">RPostgreSQL</span><span class="fu">::</span><span class="fu">PostgreSQL</span><span class="op">(</span><span class="op">)</span>,</span>
@@ -422,23 +434,24 @@ I tested crudr on. Example Postgres connection below.</p>
 <code>pool::poolClose(con)</code></p>
 </div>
 <div class="section level3">
-<h3 id="future-improvements">Future Improvements<a class="anchor" aria-label="anchor" href="#future-improvements"></a>
+<h3 id="possible-future-improvements">Possible Future Improvements<a class="anchor" aria-label="anchor" href="#possible-future-improvements"></a>
 </h3>
-<p>There are quite a few things I need to do to make this better. Maybe
-I’ll get to these sometime. Depends on whether anyone uses the app.</p>
+<p>There are quite a few things I should to do to make crudr better.
+Maybe I’ll get to these sometime. It really depends on whether anyone
+finds the crudr app useful.</p>
 <ol style="list-style-type: decimal">
 <li><p>Support for more databases, like sqlserver, oracle, etc. (I don’t
 think it’d be that hard, I just need a test connection. If anyone knows
-how to make a free test connection to another database that I haven’t
-yet supported, let me know.)</p></li>
+how to make a free test connection to sqlserver, or oracle, or whatever
+other database, let me know.)</p></li>
 <li><p>When 2 or more admin users are making concurrent changes, update
 just the specific elements that the other person changed rather than
 refreshing the entire tables.</p></li>
-<li><p>At some point I should create a function,
-cdr_reconstruct_tbl_as_of(date = Sys.Date - 1, ignore_fields = c()),
+<li><p>At some point I should create a function like
+‘cdr_reconstruct_tbl_as_of(date = Sys.Date - 1, ignore_fields = c())’,
 where you hand a date or datetime to the function and the function
-returns a tibble of the database as it was as of a particular point in
-time.</p></li>
+returns a tibble of the database admin table as it was as of a
+particular point in time.</p></li>
 <li><p>Figure out how to push data to the database asynchronously so the
 user never has to wait for the data trips to the database.</p></li>
 <li><p>Figure out how to write automatic tests for the functions, then
