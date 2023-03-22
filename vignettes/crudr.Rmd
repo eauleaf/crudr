@@ -50,8 +50,8 @@ solve the distributed data updating and distributed data use problem.
 
 The goals with crudr are to:
 
-1.  Present data from a relational database through a Shiny app for
-    viewing and management
+1.  Present data from a relational database through a DataTable in a
+    Shiny app for viewing and management
 
 2.  Separate data viewers from data managers / administrators
 
@@ -206,17 +206,19 @@ So, `cdr_manage_db_tbls()` returns 1 table directly and 2 tables
 invisibly.
 
 The direct output table in the example app below goes into:
-`iris_r_tbl`, as in `iris_r_tbl <- dr_manage_db_tbls()`. Because the
+`iris_r_tbl`, as in `iris_r_tbl <- cdr_manage_db_tbls()`. Because the
 output is a reactive table, you use the variable by acting like it's a
 function, i.e. by putting parenthesis, '()', after the variable. So, if
 you wanted to select some columns or filter some rows, you'd write,
 `iris_r_tbl() %>% select(some_columns) %>% filter(some_rows)`, just like
 with any other dataframe object.
 
-The `iris_r_tbl()` table is yours; you can do whatever you want with it.
-You can send it out in any format you like, change the column names,
-filter it, join it to something else...whatever. It's an output for the
-masses.
+The output table from `cdr_manage_db_tbls()`, in this case named,
+`iris_r_tbl()` is yours; you can do whatever you want with it. You can
+send it out in any format you like, change the column names, filter it,
+join it to something else, send it into a 'leaflet' map...whatever. It's
+an output to present to the masses. In fact, you don't even have to
+capture this output from `cdr_manage_db_tbls()` if you don't want to.
 
 ## The 2 Invisible Tables
 
@@ -371,7 +373,9 @@ permission argument(s) like 'cell_edit_permission = okay_to_change' or
 'add_row_permission = okay_to_change'. A FALSE in these parameters makes
 the admin table just another table when a typical user opens it, but
 whoever signs is as 'your.name' can change the data in the database that
-everyone else sees.
+everyone else sees. Alternatively, you could just write your code to
+*not* present to certain users the tables from `cdr_deliver_admin_tbl()`
+or `cdr_deliver_chg_log_tbl()` at all in the UI, it's up to you.
 
 ## Other Useful Info
 
@@ -419,8 +423,8 @@ the crudr app useful.
 5.  Figure out how to write automatic tests for the functions, then
     write a bunch of tests.
 
-6.  Figure out package exports so I'm not exporting every single
-    function.
+6.  Figure out package exports so I'm not avoiding errors by exporting
+    every single function.
 
 7.  Interact with someone who knows how to simplify my code, and make it
     more readable.
