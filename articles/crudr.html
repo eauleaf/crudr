@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">crudr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.22</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.23</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,8 +102,8 @@ and distributed data use problem.</p>
 </h3>
 <p>The goals with crudr are to:</p>
 <ol style="list-style-type: decimal">
-<li><p>Present data from a relational database through a Shiny app for
-viewing and management</p></li>
+<li><p>Present data from a relational database through a DataTable in a
+Shiny app for viewing and management</p></li>
 <li><p>Separate data viewers from data managers /
 administrators</p></li>
 <li><p>Make it easy to control which admin users can update columns in a
@@ -245,16 +245,19 @@ just read the function details later for that info.</p>
 tables invisibly.</p>
 <p>The direct output table in the example app below goes into:
 <code>iris_r_tbl</code>, as in
-<code>iris_r_tbl &lt;- dr_manage_db_tbls()</code>. Because the output is
-a reactive table, you use the variable by acting like it’s a function,
-i.e. by putting parenthesis, ‘()’, after the variable. So, if you wanted
-to select some columns or filter some rows, you’d write,
+<code>iris_r_tbl &lt;- cdr_manage_db_tbls()</code>. Because the output
+is a reactive table, you use the variable by acting like it’s a
+function, i.e. by putting parenthesis, ‘()’, after the variable. So, if
+you wanted to select some columns or filter some rows, you’d write,
 <code>iris_r_tbl() %&gt;% select(some_columns) %&gt;% filter(some_rows)</code>,
 just like with any other dataframe object.</p>
-<p>The <code>iris_r_tbl()</code> table is yours; you can do whatever you
-want with it. You can send it out in any format you like, change the
-column names, filter it, join it to something else…whatever. It’s an
-output for the masses.</p>
+<p>The output table from <code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code>, in this case
+named, <code>iris_r_tbl()</code> is yours; you can do whatever you want
+with it. You can send it out in any format you like, change the column
+names, filter it, join it to something else, send it into a ‘leaflet’
+map…whatever. It’s an output to present to the masses. In fact, you
+don’t even have to capture this output from
+<code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code> if you don’t want to.</p>
 </div>
 </div>
 <div class="section level3">
@@ -412,8 +415,11 @@ so in your shiny server with some code like this:</p>
 ‘cell_edit_permission = okay_to_change’ or ‘add_row_permission =
 okay_to_change’. A FALSE in these parameters makes the admin table just
 another table when a typical user opens it, but whoever signs is as
-‘your.name’ can change the data in the database that everyone else
-sees.</p>
+‘your.name’ can change the data in the database that everyone else sees.
+Alternatively, you could just write your code to <em>not</em> present to
+certain users the tables from <code><a href="../reference/cdr_deliver_admin_tbl.html">cdr_deliver_admin_tbl()</a></code> or
+<code><a href="../reference/cdr_deliver_chg_log_tbl.html">cdr_deliver_chg_log_tbl()</a></code> at all in the UI, it’s up to
+you.</p>
 </div>
 <div class="section level3">
 <h3 id="other-useful-info">Other Useful Info<a class="anchor" aria-label="anchor" href="#other-useful-info"></a>
@@ -456,8 +462,8 @@ particular point in time.</p></li>
 user never has to wait for the data trips to the database.</p></li>
 <li><p>Figure out how to write automatic tests for the functions, then
 write a bunch of tests.</p></li>
-<li><p>Figure out package exports so I’m not exporting every single
-function.</p></li>
+<li><p>Figure out package exports so I’m not avoiding errors by
+exporting every single function.</p></li>
 <li><p>Interact with someone who knows how to simplify my code, and make
 it more readable.</p></li>
 </ol>
