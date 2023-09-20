@@ -16,7 +16,7 @@ cdr_impart_chg_log_tbl <-function(
   cat('\n Downloading Deltas table from the database and presenting it in the UI\n')
   chg_log_tbl <<- dplyr::tbl(conn_pool, chg_log_tbl_name) %>%
     dplyr::collect() %>% dplyr::arrange(dplyr::desc(WHEN_EDITED))
-
+  print(utils::head(chg_log_tbl))
 
   if ( !lubridate::is.POSIXct(chg_log_tbl$WHEN_EDITED) ) {
     chg_log_tbl <<- dplyr::mutate(chg_log_tbl, WHEN_EDITED = lubridate::ymd_hms(WHEN_EDITED, tz=Sys.timezone()))
