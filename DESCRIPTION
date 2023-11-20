@@ -1,6 +1,6 @@
 Package: crudr
 Title: Simplifies CRUD tasks including tracking changes of a db table
-Version: 0.0.1.24
+Version: 0.0.1.25
 Authors@R: 
     person("eau", "leaf", email = "eau.leaf@gmail.com", role = c("aut", "cre"))
 Description: Functions for use in Shiny to manage database tables and track changes.
