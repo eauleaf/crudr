@@ -8,8 +8,8 @@
 <meta name="description" content="crudr">
 <title>crudr • crudr</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="crudr">
 <meta property="og:description" content="crudr">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">crudr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.24</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.26</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,10 +75,15 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>This package is a CRUD app. The idea behind <code>crudr</code> is to
-make it easy for you or your organization to centrally maintain a single
-source of golden data while at the same time allowing distributed
-control of the data for updates.</p>
+<p>This package is a (create-read-update-delete) CRUD app built on DT in
+R. It’s a Shiny interface where users directly edit cells within the
+presented datatable, and the syncing between your user computer, the
+server, and the database happen immediately and automatically in the
+background as you exit the cell. The idea behind <code>crudr</code> is
+to make it easy for you to centrally maintain a single source of
+centralized data while at the same time maintaining a log of all changes
+and allowing controlled but distributed editing of a dataset to keep it
+continuously updated.</p>
 <div class="section level3">
 <h3 id="a-common-problem">A Common Problem<a class="anchor" aria-label="anchor" href="#a-common-problem"></a>
 </h3>
@@ -90,9 +95,9 @@ locations, e.g. the store’s mailing address, phone number, email,
 manager, manager’s email, etc. In most companies, that information
 actually resides in a lot of different places and it almost always has
 errors because managers move around, store leases expire, and the
-spreadsheets that you got from those maintainers become outdated.
-Further, Sally might be in charge of the Locations, but Jose knows the
-Manager info, etc. You need that data to be correct, joined, posted, and
+spreadsheets that you got from the maintainers become outdated. Further,
+Sally might be in charge of the Locations, but Jose knows the Manager
+info, etc. You need that data to be correct, joined, posted, and
 available for everyone, at any time time, but maintaining quality data
 is hard to do. This package helps to solve the distributed data updating
 and distributed data use problem.</p>
@@ -137,7 +142,7 @@ make it really robust since I’m a hobbyist.</li>
 <p>Below is an example of a minimal app. This one is connected to a
 Postgres database for testing.</p>
 <div class="figure">
-<video src="www/Screencast%20from%202023-03-20%2019-46-58.webm" style="width:100.0%" controls=""><a href="www/Screencast%20from%202023-03-20%2019-46-58.webm"></a></video><p class="caption">crudr app</p>
+<video src="www/Screencast20230320.webm" style="width:100.0%" controls=""><a href="www/Screencast20230320.webm"></a></video><p class="caption">crudr app</p>
 </div>
 </div>
 </div>
@@ -161,7 +166,8 @@ updated version on CRAN.</p>
 <span>  <span class="st">'tidyverse'</span>,</span>
 <span>  <span class="st">'lubridate'</span>,</span>
 <span>  <span class="st">'DT'</span>,</span>
-<span>  <span class="st">'pool'</span></span>
+<span>  <span class="st">'pool'</span>,</span>
+<span>  <span class="st">'here'</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="crudr-functions">4 crudr functions<a class="anchor" aria-label="anchor" href="#crudr-functions"></a>
@@ -174,15 +180,16 @@ updated version on CRAN.</p>
 <div class="section level4">
 <h4 id="cdr_make_db_tbls">1) cdr_make_db_tbls()<a class="anchor" aria-label="anchor" href="#cdr_make_db_tbls"></a>
 </h4>
-<p>This function writes two tables into your database. You hand this
-function a tibble and a pool connection, and it’ll write that table, as
-well as a corresponding change tracking table, into your database. If
-you already have the main table in your database, no problem. Run the
-same function with the same inputs and <code><a href="../reference/cdr_make_db_tbls.html">cdr_make_db_tbls()</a></code>
-will just create the change tracking table. If you already have both
-tables, the function doesn’t do anything except write some notes out to
-your R console saying that it’s not going to mess with tables that
-already exist.</p>
+<p>This function, <strong><code><a href="../reference/cdr_make_db_tbls.html">cdr_make_db_tbls()</a></code></strong>,
+writes two tables into your database. You hand this function a tibble
+and a pool connection, and it’ll write that table, as well as a
+corresponding change tracking table, into your database. If you already
+have the main table in your database, no problem. Run the same function
+with the same inputs and <code><a href="../reference/cdr_make_db_tbls.html">cdr_make_db_tbls()</a></code> will just
+create the change tracking table. If you already have both tables, the
+function doesn’t do anything except write some notes out to your R
+console saying that it’s not going to mess with tables that already
+exist.</p>
 <p>Note: For crudr to work, each row of the table you write must have a
 Unique ID that’s recorded as a character. If you don’t have a Unique ID
 key field in your table when , <code><a href="../reference/cdr_make_db_tbls.html">cdr_make_db_tbls()</a></code> initially
@@ -192,11 +199,13 @@ named “UID”.</p>
 <h6 id="example-for-cdr_make_db_tbls">Example for cdr_make_db_tbls():<a class="anchor" aria-label="anchor" href="#example-for-cdr_make_db_tbls"></a>
 </h6>
 <p>If you want to create a database on your machine called ‘test.db’,
-and you want to put in a table called ‘iris’, you’d write:</p>
+and you want to put into your database a table of flower data called
+‘iris’, you’d write:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">pool</span><span class="fu">::</span><span class="fu"><a href="http://rstudio.github.io/pool/reference/dbPool.html" class="external-link">dbPool</a></span><span class="op">(</span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">RSQLite</span><span class="fu">::</span><span class="fu">SQLite</span><span class="op">(</span><span class="op">)</span>, <span class="st">'test.db'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Then you’d call the function with the above connection and a table to
-write.</p>
+write. You can find this database by looking in your default directory
+with <code>here::here()</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/cdr_make_db_tbls.html">cdr_make_db_tbls</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 <p>This code will join the new column, ‘UID’, onto your
@@ -204,7 +213,7 @@ write.</p>
 <p>If you already created a Unique ID key field in your table, just tell
 the function the name of that field with
 <code>cdr_make_db_tbls(con, iris, key_field = 'name_of_your_unique_id_field')</code>.</p>
-<p>Okay, the function should have written to your database a table
+<p>Okay, the function should have written to your database a new table
 called ‘iris’ and a second table called ‘iris_DELTAS’. The table names
 are case sensitive. You can see the tables that the function wrote by
 running the following:</p>
@@ -216,8 +225,8 @@ table named similar to your first, but with ‘*_DELTAS’. The
 ‘iris_DELTAS’ deltas table is a change log. Any change you make to the
 primary table through the admin user interface, which we’ll create
 below, gets recorded in the deltas table.</p>
-<p>As a side note, if you want to remove the tables later, you can that
-with:</p>
+<p>As a side note, if you want to remove the tables later, you can do
+that with:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pool</span><span class="fu">::</span><span class="fu">dbRemoveTable</span><span class="op">(</span><span class="va">con</span>,<span class="st">'iris'</span><span class="op">)</span></span>
 <span><span class="fu">pool</span><span class="fu">::</span><span class="fu">dbRemoveTable</span><span class="op">(</span><span class="va">con</span>,<span class="st">'iris_DELTAS'</span><span class="op">)</span></span></code></pre></div>
@@ -227,9 +236,10 @@ with:</p>
 <div class="section level4">
 <h4 id="cdr_manage_db_tbls">2) cdr_manage_db_tbls()<a class="anchor" aria-label="anchor" href="#cdr_manage_db_tbls"></a>
 </h4>
-<p>This function is the workhorse of the package. If you remember one
-function, this is the one. The function has only a handful of arguments.
-At a minimum, you have to tell this function:</p>
+<p>This function, <strong><code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code></strong>, is
+the workhorse of the package. If you remember one function, this is the
+one. The function has only a handful of arguments. At a minimum, you
+have to tell this function:</p>
 <ol style="list-style-type: decimal">
 <li>What the name of your table is. In our example case it’s,
 <em>db_tbl_name = ‘iris’</em>.</li>
@@ -247,10 +257,12 @@ tables invisibly.</p>
 <code>iris_r_tbl</code>, as in
 <code>iris_r_tbl &lt;- cdr_manage_db_tbls()</code>. Because the output
 is a reactive table, you use the variable by acting like it’s a
-function, i.e. by putting parenthesis, ‘()’, after the variable. So, if
-you wanted to select some columns or filter some rows, you’d write,
+function, i.e. by putting parentheses, ‘()’, after the variable name.
+So, if you wanted to select some columns or filter some rows, you’d
+write,
 <code>iris_r_tbl() %&gt;% select(some_columns) %&gt;% filter(some_rows)</code>,
-just like with any other dataframe object.</p>
+with the parentheses after ‘iris_r_tbl’, but otherwise it works just
+like with any other dataframe object.</p>
 <p>The output table from <code><a href="../reference/cdr_manage_db_tbls.html">cdr_manage_db_tbls()</a></code>, in this case
 named, <code>iris_r_tbl()</code> is yours; you can do whatever you want
 with it. You can send it out in any format you like, change the column
@@ -280,10 +292,9 @@ you wrote into your test database when you ran
 <code>cdr_deliver_admin_tbl('iris')</code> will deliver ‘iris’ data for
 a data curator. That is, whoever maintains your primary dataset should
 have access to this admin table, and that person can make changes to the
-data held in the database via this output in Shiny.
-<code>cdr_deliver_admin_tbl('iris')</code> gets called in the UI portion
-of Shiny. A full example is below in the section named CRUDR Example
-Code.</p>
+data held in the database via this output in Shiny. You call
+<code>cdr_deliver_admin_tbl('iris')</code> in the UI portion of Shiny. A
+full example is below in the section named CRUDR Example Code.</p>
 </div>
 <div class="section level4">
 <h4 id="cdr_deliver_chg_log_tbl">4) cdr_deliver_chg_log_tbl()<a class="anchor" aria-label="anchor" href="#cdr_deliver_chg_log_tbl"></a>
@@ -297,8 +308,8 @@ history about changes that your data curators made to the table ‘iris’.
 That is, crudr records every change that someone makes to your primary
 dataset within this change-log table. You don’t need to do much with
 this table. It’s just there to record which administrator did what to
-the database table, and when they made the change. This function gets
-called in the UI portion of Shiny. A full example is below in the
+the database table, and when they made the change. You also call this
+function in the UI portion of Shiny. A full example is below in the
 section named CRUDR Example Code. This table should be empty right now,
 but let’s change that.</p>
 </div>
@@ -308,12 +319,14 @@ but let’s change that.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="a-tiny-shiny-app">A Tiny Shiny App<a class="anchor" aria-label="anchor" href="#a-tiny-shiny-app"></a>
+<h2 id="a-tiny-shiny-crud-app">A Tiny Shiny CRUD App<a class="anchor" aria-label="anchor" href="#a-tiny-shiny-crud-app"></a>
 </h2>
 <p>To manage the database tables, let’s launch a bare-bones shiny app.
-We’ll only need the ‘crudr’ functions described above. The other code
-comes from packages <em>shiny</em>, <em>shinydashboard</em>, and
-<em>DT</em>. Copy the code into your RStudio console and have at it.</p>
+We’ll only need the single ‘crudr’ functions described above,
+<code>cdr_manage_db_tbls</code>. The other code all comes from packages
+<em>shiny</em>, <em>shinydashboard</em>, and <em>DT</em>. Copy the code
+below into your RStudio console, run it, and then play with your
+data.</p>
 <div class="section level3">
 <h3 id="crudr-example-code">CRUDR Example Code<a class="anchor" aria-label="anchor" href="#crudr-example-code"></a>
 </h3>
@@ -452,7 +465,7 @@ how to make a free test connection to sqlserver, or oracle, or whatever
 other database, let me know.)</p></li>
 <li><p>When 2 or more admin users are making concurrent changes, update
 just the specific elements that the other person changed rather than
-refreshing the entire tables.</p></li>
+refreshing the tables.</p></li>
 <li><p>At some point I should create a function like
 ‘cdr_reconstruct_tbl_as_of(date = Sys.Date - 1, ignore_fields = c())’,
 where you hand a date or datetime to the function and the function
@@ -466,6 +479,9 @@ write a bunch of tests.</p></li>
 exporting every single function.</p></li>
 <li><p>Interact with someone who knows how to simplify my code, and make
 it more readable.</p></li>
+<li><p>Create a UUID Unique Key option.</p></li>
+<li><p>S4 objects</p></li>
+<li><p>Row controls</p></li>
 </ol>
 </div>
 </div>

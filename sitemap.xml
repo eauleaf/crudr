@@ -22,6 +22,18 @@
     <loc>https://eauleaf.github.io/crudr/index.html</loc>
   </url>
   <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_DB2RT_chg_log.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_DB2RT_primary.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_RT2DT_chg_log.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_RT2DT_primary.html</loc>
+  </url>
+  <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_adj_timezone.html</loc>
   </url>
   <url>
@@ -35,6 +47,9 @@
   </url>
   <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_chk_uniq_id.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_chunk_tbl.html</loc>
   </url>
   <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_coerce_value.html</loc>
@@ -52,10 +67,10 @@
     <loc>https://eauleaf.github.io/crudr/reference/cdr_deliver_chg_log_tbl.html</loc>
   </url>
   <url>
-    <loc>https://eauleaf.github.io/crudr/reference/cdr_impart_chg_log_tbl.html</loc>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_id.html</loc>
   </url>
   <url>
-    <loc>https://eauleaf.github.io/crudr/reference/cdr_impart_primary_tbl.html</loc>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_id2sql.html</loc>
   </url>
   <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_join_tbls.html</loc>
@@ -76,13 +91,16 @@
     <loc>https://eauleaf.github.io/crudr/reference/cdr_name_delta_tbl.html</loc>
   </url>
   <url>
-    <loc>https://eauleaf.github.io/crudr/reference/cdr_remove_tbl.html</loc>
-  </url>
-  <url>
-    <loc>https://eauleaf.github.io/crudr/reference/cdr_reset_db.html</loc>
-  </url>
-  <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_row_editor_html.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_std_pad.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_tbl2ansi_format.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_trunc_tbl.html</loc>
   </url>
   <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_update_db_deltas_tbl.html</loc>
@@ -91,9 +109,9 @@
     <loc>https://eauleaf.github.io/crudr/reference/cdr_update_db_primary_tbl.html</loc>
   </url>
   <url>
-    <loc>https://eauleaf.github.io/crudr/reference/index.html</loc>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_which_db.html</loc>
   </url>
   <url>
-    <loc>https://eauleaf.github.io/crudr/reference/pipe.html</loc>
+    <loc>https://eauleaf.github.io/crudr/reference/index.html</loc>
   </url>
 </urlset>
