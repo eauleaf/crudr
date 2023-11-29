@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_coerce_value.R
 \name{cdr_coerce_value}
 \alias{cdr_coerce_value}
-\title{change cell value using DT::coerceValue}
+\title{Change cell value using \code{\link[DT:coerceValue]{DT::coerceValue()}}}
 \usage{
 cdr_coerce_value(input_val, old_mem_val)
 }
@@ -12,16 +12,16 @@ cdr_coerce_value(input_val, old_mem_val)
 \item{old_mem_val}{type from database table}
 }
 \value{
-input_val value coerced to the correct df_tbl value
+input_val value coerced to the correct \code{df_tbl} value
 }
 \description{
-change cell value using DT::coerceValue
+Change cell value using \code{\link[DT:coerceValue]{DT::coerceValue()}}
 }
 \examples{
 \dontrun{
-crudr::cdr_coerce_value(c('2023-03-17', '2023-03-17T14:28:24Z'), lubridate::now())
+cdr_coerce_value(c('2023-03-17', '2023-03-17T14:28:24Z'), lubridate::now())
 input_val <- c('true','t','truthy','tri',1,0,5,-5,'false','bla bla bla','a',' ','',
 'na','none','no', 'yes', 'off', 'on', 'no', 'f','F','T', 'NO')
-purrr::set_names(purrr::map(input_val, ~crudr::cdr_coerce_value(., TRUE)), input_val)
+purrr::set_names(purrr::map(input_val, ~cdr_coerce_value(., TRUE)), input_val)
 }
 }

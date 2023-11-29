@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_update_db_primary_tbl.R
 \name{cdr_update_db_primary_tbl}
 \alias{cdr_update_db_primary_tbl}
-\title{updates the primary db table by specifying value to change,
+\title{Updates the primary db table by specifying value to change,
 corresponding db table, unique row ID, and column}
 \usage{
 cdr_update_db_primary_tbl(
@@ -17,7 +17,7 @@ cdr_update_db_primary_tbl(
 \arguments{
 \item{conn_pool}{pool connection object: the pool of connections established by the session}
 
-\item{db_tbl_name}{string: name of the specific table the value to update is located in}
+\item{db_tbl_name}{string: name of the specific table to update, or \code{\link[=cdr_id]{cdr_id()}} object}
 
 \item{update_value}{number or string: the value to update already in the correct data type}
 
@@ -32,6 +32,6 @@ where the value to update is located (key)}
 TRUE
 }
 \description{
-updates the primary db table by specifying value to change,
+Updates the primary db table by specifying value to change,
 corresponding db table, unique row ID, and column
 }

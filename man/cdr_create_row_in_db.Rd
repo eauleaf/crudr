@@ -9,15 +9,15 @@ cdr_create_row_in_db(conn_pool, db_tbl_name, key_col, input_uid)
 \arguments{
 \item{conn_pool}{pool object for the pool of connections to the specific db}
 
-\item{db_tbl_name}{char string describing the specific table the new line is located in}
+\item{db_tbl_name}{string: name of the specific table to update, or \code{\link[=cdr_id]{cdr_id()}} object}
 
 \item{key_col}{name of the unique ID column in the db table (table must have a unique ID column with unique IDs)}
 
 \item{input_uid}{char string: the new unique ID you'd like to use for the new observation you're creating}
 }
 \description{
-create new observation line in primary production database table and insert a unique
-ID in the unique observation identifier line
-Note: This function is only for the primary table. It is not used on the deltas table.
-Note2: Function does not clean or control 'new_uid' inputs. Run your cleaning code before passing in 'new_uid'
+Create new observation line in primary database table and insert a unique
+ID in the unique observation identifier line.
+Note: This function is only for the primary table. It is not used for the chg_log table.
+Note2: Function does not clean or control 'new_uid' inputs. Run controls code before passing in 'new_uid'
 }

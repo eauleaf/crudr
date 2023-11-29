@@ -25,10 +25,14 @@ library(crudr)
 
 # Overview
 
-This package is a CRUD app. The idea behind `crudr` is to make it easy
-for you or your organization to centrally maintain a single source of
-golden data while at the same time allowing distributed control of the
-data for updates.
+This package is a (create-read-update-delete) CRUD app built on DT in R. It's a
+Shiny interface where users directly edit cells within the presented datatable,
+and the syncing between your user computer, the server, and the database happen
+immediately and automatically in the background as you exit the cell. The idea
+behind `crudr` is to make it easy for you to centrally maintain a single source
+of centralized data while at the same time maintaining a log of all changes and
+allowing controlled but distributed editing of a dataset to keep it continuously
+updated.
 
 ## A Common Problem
 
@@ -40,7 +44,7 @@ the store's mailing address, phone number, email, manager, manager's
 email, etc. In most companies, that information actually resides in a
 lot of different places and it almost always has errors because managers
 move around, store leases expire, and the spreadsheets that you got from
-those maintainers become outdated. Further, Sally might be in charge of
+the maintainers become outdated. Further, Sally might be in charge of
 the Locations, but Jose knows the Manager info, etc. You need that data
 to be correct, joined, posted, and available for everyone, at any time
 time, but maintaining quality data is hard to do. This package helps to
@@ -84,8 +88,7 @@ The goals with crudr are to:
 Below is an example of a minimal app. This one is connected to a
 Postgres database for testing.
 
-![crudr
-app](www/Screencast%20from%202023-03-20%2019-46-58.webm){width="100%"}
+![crudr app](www/Screencast20230320.webm){width="100%"}
 
 ## 
 
@@ -108,7 +111,8 @@ install.packages(c(
   'tidyverse',
   'lubridate',
   'DT',
-  'pool'
+  'pool',
+  'here'
 ))
 ```
 
@@ -120,15 +124,14 @@ There are really only 4 crudr functions you need to know:
 
 ### 1) cdr_make_db_tbls()
 
-This function writes two tables into your database. You hand this
-function a tibble and a pool connection, and it'll write that table, as
-well as a corresponding change tracking table, into your database. If
-you already have the main table in your database, no problem. Run the
-same function with the same inputs and `cdr_make_db_tbls()` will just
-create the change tracking table. If you already have both tables, the
-function doesn't do anything except write some notes out to your R
-console saying that it's not going to mess with tables that already
-exist.
+This function, **`cdr_make_db_tbls()`**, writes two tables into your database.
+You hand this function a tibble and a pool connection, and it'll write that
+table, as well as a corresponding change tracking table, into your database. If
+you already have the main table in your database, no problem. Run the same
+function with the same inputs and `cdr_make_db_tbls()` will just create the
+change tracking table. If you already have both tables, the function doesn't do
+anything except write some notes out to your R console saying that it's not
+going to mess with tables that already exist.
 
 Note: For crudr to work, each row of the table you write must have a
 Unique ID that's recorded as a character. If you don't have a Unique ID
@@ -138,15 +141,16 @@ table, then the function will automatically make one for you named
 
 ##### Example for cdr_make_db_tbls():
 
-If you want to create a database on your machine called 'test.db', and
-you want to put in a table called 'iris', you'd write:
+If you want to create a database on your machine called 'test.db', and you want
+to put into your database a table of flower data called 'iris', you'd write:
 
 ```{r sqlite-db, eval = F}
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'test.db'))
 ```
 
 Then you'd call the function with the above connection and a table to
-write.
+write. You can find this database by looking in your default directory with 
+`here::here()`.
 
 ```{r create-tbls, eval = F}
 cdr_make_db_tbls(con, iris)
@@ -159,7 +163,7 @@ If you already created a Unique ID key field in your table, just tell
 the function the name of that field with
 `cdr_make_db_tbls(con, iris, key_field = 'name_of_your_unique_id_field')`.
 
-Okay, the function should have written to your database a table called
+Okay, the function should have written to your database a new table called
 'iris' and a second table called 'iris_DELTAS'. The table names are case
 sensitive. You can see the tables that the function wrote by running the
 following:
@@ -175,7 +179,7 @@ deltas table is a change log. Any change you make to the primary table
 through the admin user interface, which we'll create below, gets
 recorded in the deltas table.
 
-As a side note, if you want to remove the tables later, you can that
+As a side note, if you want to remove the tables later, you can do that
 with:
 
 ```{r eval = F}
@@ -187,7 +191,7 @@ Or, just delete the database 'test.db'.
 
 ### 2) cdr_manage_db_tbls()
 
-This function is the workhorse of the package. If you remember one
+This function, **`cdr_manage_db_tbls()`**, is the workhorse of the package. If you remember one
 function, this is the one. The function has only a handful of arguments.
 At a minimum, you have to tell this function:
 
@@ -205,13 +209,13 @@ just read the function details later for that info.
 So, `cdr_manage_db_tbls()` returns 1 table directly and 2 tables
 invisibly.
 
-The direct output table in the example app below goes into:
-`iris_r_tbl`, as in `iris_r_tbl <- cdr_manage_db_tbls()`. Because the
-output is a reactive table, you use the variable by acting like it's a
-function, i.e. by putting parenthesis, '()', after the variable. So, if
-you wanted to select some columns or filter some rows, you'd write,
-`iris_r_tbl() %>% select(some_columns) %>% filter(some_rows)`, just like
-with any other dataframe object.
+The direct output table in the example app below goes into: `iris_r_tbl`, as in
+`iris_r_tbl <- cdr_manage_db_tbls()`. Because the output is a reactive table,
+you use the variable by acting like it's a function, i.e. by putting
+parentheses, '()', after the variable name. So, if you wanted to select some
+columns or filter some rows, you'd write, `iris_r_tbl() %>% select(some_columns)
+%>% filter(some_rows)`, with the parentheses after 'iris_r_tbl', but otherwise
+it works just like with any other dataframe object.
 
 The output table from `cdr_manage_db_tbls()`, in this case named,
 `iris_r_tbl()` is yours; you can do whatever you want with it. You can
@@ -237,8 +241,8 @@ you wrote into your test database when you ran `cdr_make_db_tbls()`, so
 in our test case, `cdr_deliver_admin_tbl('iris')` will deliver 'iris'
 data for a data curator. That is, whoever maintains your primary dataset
 should have access to this admin table, and that person can make changes
-to the data held in the database via this output in Shiny.
-`cdr_deliver_admin_tbl('iris')` gets called in the UI portion of Shiny.
+to the data held in the database via this output in Shiny. You call 
+`cdr_deliver_admin_tbl('iris')` in the UI portion of Shiny.
 A full example is below in the section named CRUDR Example Code.
 
 ### 4) cdr_deliver_chg_log_tbl()
@@ -252,19 +256,19 @@ changes that your data curators made to the table 'iris'. That is, crudr
 records every change that someone makes to your primary dataset within
 this change-log table. You don't need to do much with this table. It's
 just there to record which administrator did what to the database table,
-and when they made the change. This function gets called in the UI
+and when they made the change. You also call this function in the UI
 portion of Shiny. A full example is below in the section named CRUDR
 Example Code. This table should be empty right now, but let's change
 that.
 
 ## 
 
-# A Tiny Shiny App
+# A Tiny Shiny CRUD App
 
-To manage the database tables, let's launch a bare-bones shiny app.
-We'll only need the 'crudr' functions described above. The other code
-comes from packages *shiny*, *shinydashboard*, and *DT*. Copy the code
-into your RStudio console and have at it.
+To manage the database tables, let's launch a bare-bones shiny app. We'll only
+need the single 'crudr' functions described above, `cdr_manage_db_tbls`. The
+other code all comes from packages *shiny*, *shinydashboard*, and *DT*. Copy the
+code below into your RStudio console, run it, and then play with your data.
 
 ## CRUDR Example Code
 
@@ -409,7 +413,7 @@ the crudr app useful.
 
 2.  When 2 or more admin users are making concurrent changes, update
     just the specific elements that the other person changed rather than
-    refreshing the entire tables.
+    refreshing the tables.
 
 3.  At some point I should create a function like
     'cdr_reconstruct_tbl_as_of(date = Sys.Date - 1, ignore_fields =
@@ -428,3 +432,9 @@ the crudr app useful.
 
 7.  Interact with someone who knows how to simplify my code, and make it
     more readable.
+    
+8.  Create a UUID Unique Key option.
+
+9.  S4 objects
+
+10. Row controls

@@ -1,8 +1,8 @@
-#' updates the primary db table by specifying value to change,
+#' Updates the primary db table by specifying value to change,
 #'   corresponding db table, unique row ID, and column
 #'
 #' @param conn_pool pool connection object: the pool of connections established by the session
-#' @param db_tbl_name string: name of the specific table the value to update is located in
+#' @param db_tbl_name string: name of the specific table to update, or [cdr_id()] object
 #' @param update_value number or string: the value to update already in the correct data type
 #' @param value_colname string: the specific column name where the value to update is located
 #' @param value_rowuid number or string: the specific row unique ID that corresponds to the row
@@ -10,9 +10,7 @@
 #' @param key_column string: the name of the column with the unique ID (key column)
 #'
 #' @return TRUE
-#' @export
 #'
-
 cdr_update_db_primary_tbl <- function(conn_pool  = conn_pool,
                                       db_tbl_name   = NULL,
                                       update_value  = NULL,
@@ -20,8 +18,9 @@ cdr_update_db_primary_tbl <- function(conn_pool  = conn_pool,
                                       value_rowuid  = NULL,
                                       key_column    = NULL
 ){
-  cat('\n--Running: crudr::cdr_update_db_primary_tbl()\n')
+  cat('\n--Running: cdr_update_db_primary_tbl()\n')
 
+  db_tbl_name <- cdr_id2sql(db_tbl_name)
 
   if (!is.na(update_value) & lubridate::is.POSIXct(update_value)){
     update_value <- paste(lubridate::ymd_hms(update_value)) # already UTC
@@ -34,7 +33,7 @@ cdr_update_db_primary_tbl <- function(conn_pool  = conn_pool,
   sql_stmt <- pool::sqlInterpolate(
     conn = conn_pool,
     sql  = glue::glue('
-    UPDATE "{db_tbl_name}"
+    UPDATE {db_tbl_name}
     SET "{value_colname}" = ?update_value
     WHERE "{key_column}" = ?value_rowuid '
     ),

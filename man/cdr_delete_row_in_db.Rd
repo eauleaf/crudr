@@ -14,7 +14,7 @@ cdr_delete_row_in_db(
 \arguments{
 \item{conn_pool}{pool connection object: the pool of connections established by the session}
 
-\item{db_tbl_name}{string: name of the specific table the value to update is located in}
+\item{db_tbl_name}{string: name of the specific database table, or \code{\link[=cdr_id]{cdr_id()}} object}
 
 \item{value_rowuid}{number or string: the specific the unique ID that corresponds to the row to delete}
 
@@ -31,9 +31,9 @@ Note: not implemented in a UI button, but here for administrator use
 \dontrun{
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
 iris <- dplyr::mutate(iris, unique_id = paste0('uid_',dplyr::row_number()))
-crudr::cdr_make_db_tbls(conn_pool = con, db_tbl = iris)
+cdr_make_db_tbls(conn_pool = con, db_tbl = iris)
 print(here::here('iris.db'))
-crudr::cdr_delete_row_in_db(
+cdr_delete_row_in_db(
   conn_pool = con,
   db_tbl_name = 'iris', #'iris_deltas'
   value_rowuid = 'uid_1',

@@ -2,19 +2,20 @@
 % Please edit documentation in R/cdr_deliver_admin_tbl.R
 \name{cdr_deliver_admin_tbl}
 \alias{cdr_deliver_admin_tbl}
-\title{gets the administrator table for the Shiny UI}
+\title{Shiny UI HTML for the administrator table and}
 \usage{
 cdr_deliver_admin_tbl(db_tbl_name = "")
 }
 \arguments{
-\item{db_tbl_name}{string: name of the primary database table being managed}
+\item{db_tbl_name}{string: name of the primary database table being managed (for namespace id)}
 }
 \value{
 the rendered Datatable interface
 }
 \description{
-gets the administrator table for the Shiny UI
+Shiny UI HTML for the administrator table and
 }
 \examples{
-\dontrun{ crudr::cdr_deliver_admin_tbl('iris') }
+ui_html <- cdr_deliver_admin_tbl('iris')
+
 }

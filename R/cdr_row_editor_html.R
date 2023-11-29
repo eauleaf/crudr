@@ -1,17 +1,18 @@
-#' creates the html for the UI to add and delete new rows given the permissions to do so
+#' The html for the UI to add and delete new rows
+#'
+#' Responsive to given permissions
 #'
 #' @param notes_txt message to send to the UI edit page
-#' @param id namespace id (corresponds to DB name)
+#' @param id namespace id - corresponds to table name
 #' @param add_row_permission T or F: whether user has permission to add a new observation, i.e. the Unique ID for a row
 #' @param del_row_permission T or F: whether user has permission to delete a new observation, i.e. the Unique ID for a row
 #'
 #' @return ui output component
-#' @export
 #'
-#' @examples crudr::cdr_row_editor_html('hello', 'iris', TRUE, TRUE)
+#' @examples crudr:::cdr_row_editor_html('hello', 'iris', TRUE, TRUE)
 cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_row_permission = F){
 
-  cat('\n--Running: crudr::cdr_row_editor_html()\n')
+  cat('\n--Running: cdr_row_editor_html()\n')
 
   ns <- shiny::NS(id)
   html_style <- "display: inline-flex; align-items: center; font-size: 10px;"
@@ -22,7 +23,7 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
 
 
   if (add_row_permission & del_row_permission) {
-
+      cat('\n--Granting permissions: add and delete rows \n')
       shiny::tags$span(style=html_style,
                        html_for_uid_box,
                        html_btn_to_create_row,
@@ -31,7 +32,7 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
                        )
 
   } else if (add_row_permission) {
-
+      cat('\n--Granting permissions: add rows only \n')
       shiny::tags$span(style=html_style,
                        html_for_uid_box,
                        html_btn_to_create_row,
@@ -39,7 +40,7 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
       )
 
   } else if (del_row_permission){
-
+      cat('\n--Granting permissions: delete rows only \n')
     shiny::tags$span(style=html_style,
                      html_for_uid_box,
                      html_btn_to_delete_row,
@@ -47,7 +48,7 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
     )
 
   } else {
-
+      cat('\n--Granting permissions: no add/delete rows \n')
     ' '
 
   }

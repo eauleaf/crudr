@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_row_editor_html.R
 \name{cdr_row_editor_html}
 \alias{cdr_row_editor_html}
-\title{creates the html for the UI to add and delete new rows given the permissions to do so}
+\title{The html for the UI to add and delete new rows}
 \usage{
 cdr_row_editor_html(
   notes_txt = "",
@@ -14,7 +14,7 @@ cdr_row_editor_html(
 \arguments{
 \item{notes_txt}{message to send to the UI edit page}
 
-\item{id}{namespace id (corresponds to DB name)}
+\item{id}{namespace id - corresponds to table name}
 
 \item{add_row_permission}{T or F: whether user has permission to add a new observation, i.e. the Unique ID for a row}
 
@@ -24,8 +24,8 @@ cdr_row_editor_html(
 ui output component
 }
 \description{
-creates the html for the UI to add and delete new rows given the permissions to do so
+Responsive to given permissions
 }
 \examples{
-crudr::cdr_row_editor_html('hello', 'iris', TRUE, TRUE)
+crudr:::cdr_row_editor_html('hello', 'iris', TRUE, TRUE)
 }

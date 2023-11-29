@@ -4,17 +4,24 @@
 \alias{cdr_update_db_deltas_tbl}
 \title{Populates deltas table when user updates primary table}
 \usage{
-cdr_update_db_deltas_tbl(conn_pool, db_tbl_name, to_deltas_tbl)
+cdr_update_db_deltas_tbl(
+  conn_pool,
+  db_tbl_name,
+  to_deltas_tbl,
+  db_tzone = cdr_adj_timezone(conn_pool)
+)
 }
 \arguments{
 \item{conn_pool}{pool connection object: the pool of connections established by the session}
 
-\item{db_tbl_name}{string: name of the specific table the value to update is located in}
+\item{db_tbl_name}{string: name of the specific database table or \code{\link[=cdr_id]{cdr_id()}} object}
 
 \item{to_deltas_tbl}{tibble of delta values to append}
+
+\item{db_tzone}{the DB timezone (obtained from \code{cdr_adj_timezone(conn_pool)})}
 }
 \value{
-an in-memory copy of the data just appended to the tracking table
+an in-memory copy of the data appended to the tracking table
 }
 \description{
 Connects to and posts who-what-when data to a change tracking table

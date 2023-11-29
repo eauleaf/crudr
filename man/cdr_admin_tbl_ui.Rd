@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_admin_tbl_ui.R
 \name{cdr_admin_tbl_ui}
 \alias{cdr_admin_tbl_ui}
-\title{UI module to output a DT from the Server module}
+\title{HTML to output a DT from the Server module}
 \usage{
 cdr_admin_tbl_ui(id, tbl = "db_tbl")
 }
@@ -17,11 +17,9 @@ from server module you want to present}
 a DTOutput table with loading spinner
 }
 \description{
-User interface portion of the crudr module. Presents an ajax datatable in a
-shiny UI. Just a DT output wrapped in a namespace
+A DT output for a namespace
 }
 \examples{
-\dontrun{
-ui <- fluidPage(crudr::cdr_manage_db_tbls('iris'))
-}
+ui_html <- shiny::fluidPage(crudr:::cdr_admin_tbl_ui('iris', 'db_tbl'))
+
 }

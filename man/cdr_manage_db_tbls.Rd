@@ -2,28 +2,30 @@
 % Please edit documentation in R/cdr_manage_db_tbls.r
 \name{cdr_manage_db_tbls}
 \alias{cdr_manage_db_tbls}
-\title{Server module to present and control a db table}
+\title{Server module to present and control a DB table}
 \usage{
 cdr_manage_db_tbls(
   db_tbl_name,
   key_col,
   conn_pool,
   session,
-  add_row_permission = F,
-  del_row_permission = F,
-  cell_edit_permission = F,
+  add_row_permission = FALSE,
+  del_row_permission = FALSE,
+  cell_edit_permission = FALSE,
   lock_fields = c(),
-  multiuser_update_wait = 0
+  multiuser_update_wait = 0,
+  chg_log_suffix = "_DELTAS",
+  ...
 )
 }
 \arguments{
-\item{db_tbl_name}{primary table name - namespace ID corresponding to the
-'primary_tbl_name' in the database}
+\item{db_tbl_name}{a string specifying the table name for the the primary
+database table you are managing, e.g. 'iris_tbl'}
 
 \item{key_col}{name of the unique ID column in the db table (table must have
 a unique ID column with unique IDs)}
 
-\item{conn_pool}{db connection from package 'pool'}
+\item{conn_pool}{db connection from package 'pool' or 'DBI'}
 
 \item{session}{current shiny session}
 
@@ -35,27 +37,32 @@ a unique ID column with unique IDs)}
 (cell_edit_permission = T means the user can change the data)
 (cell_edit_permission = F means the user can only see the data)}
 
-\item{lock_fields}{strings: a vector of field names from the database to lock from admin editing}
+\item{lock_fields}{strings: a vector of field names from the database table to lock from user editing}
 
 \item{multiuser_update_wait}{numeric: minimum time in seconds between checking for
-and incorporating any data changes made by other users}
+and incorporating potential data changes made by other users}
+
+\item{chg_log_suffix}{optional string to identify a suffix other than '_DELTAS'
+for your database change-log table}
+
+\item{...}{additional parameters to specify the primary table location in
+the database if needed, e.g. schema = 'my_schema', catalog = 'some_catalog'}
 }
 \value{
-returns DT reactive tables to the shiny ui environment
+returns a DT to the shiny ui environment, and as side-effect returns
+a \code{chg_log_tbl} and an editable \code{db_tbl} specified by namespace
 }
 \description{
-This function is a server module that gets database tables from db specified by pool connection
-and the db table name specified in 'db_tbl_name', server module manages and syncs
-changes between the UI DT, in-server-memory tbl, and backend db, for the
-primary as well as the corresponding deltas table (and joined table if it's
-presented in the UI)
+This function is a server module that gets database tables from a DB,
+presents that table in shiny server, and syncs user changes between the UI
+server-memory R tables, and the back-end DB.
 }
 \examples{
 \dontrun{
 con <- pool::dbPool(DBI::dbConnect(RSQLite::SQLite(), 'iris.db'))
-crudr::cdr_make_db_tbls(con, iris)
+cdr_make_db_tbls(con, iris)
 server <- function(input, output, session){
-             r_tbl <- crudr::cdr_manage_db_tbls('iris', 'UID', con, session)
+             r_tbl <- cdr_manage_db_tbls('iris', 'UID', con, session)
              output$iris <- DT::renderDT(r_tbl()) }
 ui <- shiny::fluidPage(DT::DTOutput('iris'))
 shiny::shinyApp(ui,server)

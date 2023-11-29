@@ -1,12 +1,13 @@
-#' Allows key use to navigate table and edit cells
+#' DT Javascript callback to make edit keys
+#' mimic the navigation and cell editing keys of LibreCalc/Excel
 #'
-#' @return javascript callback for DT::datatable()
+#' @return javascript for DT::datatable()
 #' @export
 #'
-#' @examples crudr::cdr_js_edit_ctrl()
+#' @examples cdr_js_edit_ctrl()
 cdr_js_edit_ctrl <- function(){
 
-  cat('\n--Running: crudr::cdr_js_edit_ctrl()\n')
+  cat('\n\t Calling JS: cdr_js_edit_ctrl()\n')
 
   js <- c(
 

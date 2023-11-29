@@ -14,12 +14,9 @@
 #'   restrictive because it's capital insensitive.
 #'
 #' @return text to display in the UI
-#' @export
-#'
-#' @importFrom rlang .data
 #'
 cdr_chk_uniq_id <- function(db_tbl, input_uid, key_column, chk_for = c('create', 'delete')){
-  cat('\n--Running: crudr::cdr_chk_uniq_id()\n')
+  cat('\n--Running: cdr_chk_uniq_id()\n')
 
   chk_for <- tolower(chk_for[1])
 
@@ -36,3 +33,8 @@ cdr_chk_uniq_id <- function(db_tbl, input_uid, key_column, chk_for = c('create',
   }
 
 }
+
+
+# #' @importFrom rlang .data
+# #'
+# #'

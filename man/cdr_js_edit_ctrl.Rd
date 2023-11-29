@@ -2,16 +2,18 @@
 % Please edit documentation in R/cdr_js_edit_ctrl.R
 \name{cdr_js_edit_ctrl}
 \alias{cdr_js_edit_ctrl}
-\title{Allows key use to navigate table and edit cells}
+\title{DT Javascript callback to make edit keys
+mimic the navigation and cell editing keys of LibreCalc/Excel}
 \usage{
 cdr_js_edit_ctrl()
 }
 \value{
-javascript callback for DT::datatable()
+javascript for DT::datatable()
 }
 \description{
-Allows key use to navigate table and edit cells
+DT Javascript callback to make edit keys
+mimic the navigation and cell editing keys of LibreCalc/Excel
 }
 \examples{
-crudr::cdr_js_edit_ctrl()
+cdr_js_edit_ctrl()
 }

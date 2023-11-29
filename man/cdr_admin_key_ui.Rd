@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_admin_key_ui.R
 \name{cdr_admin_key_ui}
 \alias{cdr_admin_key_ui}
-\title{UI module interface button for row additions and/or row deletions in server module table}
+\title{Interface buttons for row additions and/or row deletions in the admin table}
 \usage{
 cdr_admin_key_ui(id)
 }
@@ -11,7 +11,7 @@ cdr_admin_key_ui(id)
 'primary_tbl_name' in the database}
 }
 \value{
-html (to be called in a shiny app only)
+html (to be called in \code{cdr_deliver_admin_tbl()})
 }
 \description{
 User interface portion of the server module Unique ID input textbox and button
@@ -19,6 +19,7 @@ button UI shows up for primary table if cell_edit_permission is set to T in serv
 }
 \examples{
 \dontrun{
-ui <- shiny::fluidPage(crudr::cdr_admin_key_ui('primary_table_name'))
+ui_html <- shiny::fluidPage(crudr:::cdr_admin_key_ui('primary_table_name'))
 }
+
 }

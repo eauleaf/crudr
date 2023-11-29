@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_deliver_chg_log_tbl.R
 \name{cdr_deliver_chg_log_tbl}
 \alias{cdr_deliver_chg_log_tbl}
-\title{gets the change history table for the Shiny UI}
+\title{Gets the the change history table in the Shiny UI}
 \usage{
 cdr_deliver_chg_log_tbl(db_tbl_name = "")
 }
@@ -13,8 +13,9 @@ cdr_deliver_chg_log_tbl(db_tbl_name = "")
 the rendered Datatable interface
 }
 \description{
-gets the change history table for the Shiny UI
+Gets the the change history table in the Shiny UI
 }
 \examples{
-\dontrun{ crudr::cdr_deliver_chg_log_tbl('iris') }
+cdr_deliver_chg_log_tbl('iris')
+
 }

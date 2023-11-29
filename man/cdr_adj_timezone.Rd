@@ -2,7 +2,7 @@
 % Please edit documentation in R/cdr_adj_timezone.R
 \name{cdr_adj_timezone}
 \alias{cdr_adj_timezone}
-\title{adjust for timezone treatment between databases}
+\title{Provides an equivalent R timezone for the DB timezone}
 \usage{
 cdr_adj_timezone(conn_pool)
 }
@@ -10,12 +10,33 @@ cdr_adj_timezone(conn_pool)
 \item{conn_pool}{database connection of type pool}
 }
 \value{
-'UTC' or empty string
+an OlsonNames() timezone for R and lubridate
 }
 \description{
-adjust for timezone treatment between databases
+Translates between Postgres, Sqlite, Snowflake & R  timezones to adjust for timezone treatment
+between different databases
+}
+\details{
+Postgres timezone ref:
+'https://www.postgresql.org/docs/8.1/datetime-keywords.html'
+
+Snowflake is always: 'UTC'
+
+Sqlite is always an empty string: ""
+(not 'UTC')
 }
 \examples{
-\dontrun{ cdr_adj_timezone(conn_pool) }
+\dontrun{
+conn_pool <- pool::dbPool(
+  DBI::dbConnect( RPostgreSQL::PostgreSQL(),
+                  dbname = "test",
+                  host = "localhost",
+                  port = "5432",
+                  user = Sys.getenv('postgres_username'),
+                  password = Sys.getenv('postgres_password'))
+)
+cdr_adj_timezone(conn_pool)
+pool::poolClose(conn_pool)
+}
 
 }
