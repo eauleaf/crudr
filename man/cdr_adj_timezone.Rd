@@ -35,7 +35,7 @@ conn_pool <- pool::dbPool(
                   user = Sys.getenv('postgres_username'),
                   password = Sys.getenv('postgres_password'))
 )
-cdr_adj_timezone(conn_pool)
+crudr:::cdr_adj_timezone(conn_pool)
 pool::poolClose(conn_pool)
 }
 

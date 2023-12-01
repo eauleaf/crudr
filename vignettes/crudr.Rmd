@@ -427,14 +427,7 @@ the crudr app useful.
 5.  Figure out how to write automatic tests for the functions, then
     write a bunch of tests.
 
-6.  Figure out package exports so I'm not avoiding errors by exporting
-    every single function.
-
-7.  Interact with someone who knows how to simplify my code, and make it
+6.  Interact with someone who knows how to simplify my code, and make it
     more readable.
     
-8.  Create a UUID Unique Key option.
-
-9.  S4 objects
-
-10. Row controls
+7.  Row controls
