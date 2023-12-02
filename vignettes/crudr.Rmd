@@ -36,19 +36,18 @@ updated.
 
 ## A Common Problem
 
-Each company I have worked for has different departments with different
+Companies often have different departments with different
 spreadsheets that track the same information. For instance, let's say
 you have a bunch of store locations in your company. Ideally, someone in
 your company has all the updated information about those locations, e.g.
 the store's mailing address, phone number, email, manager, manager's
 email, etc. In most companies, that information actually resides in a
-lot of different places and it almost always has errors because managers
-move around, store leases expire, and the spreadsheets that you got from
-the maintainers become outdated. Further, Sally might be in charge of
+lot of different places and the datasets almost always have errors because managers
+move around, store leases expire, etc. Further, Sally might be in charge of
 the Locations, but Jose knows the Manager info, etc. You need that data
 to be correct, joined, posted, and available for everyone, at any time
 time, but maintaining quality data is hard to do. This package helps to
-solve the distributed data updating and distributed data use problem.
+solve the distributed-data-maintenance and distributed-data-availability problem.
 
 ## Goals for crudr
 
@@ -383,51 +382,60 @@ or `cdr_deliver_chg_log_tbl()` at all in the UI, it's up to you.
 
 ## Other Useful Info
 
-For a Postgres database connection, use `RPostgreSQL::PostgreSQL()` as
-the driver, since that's the driver I tested crudr on. Example Postgres
-connection below.
+For a Postgres database connection, you can only use a `pool` connection with `RPostgreSQL::PostgreSQL()`, but `RPostgres::Postgres()` also works fine--just don't wrap it in `pool::dbPool()`. 
 
-```{r postgres_connection, eval = F}
+<br/>
+
+Example Postgres connection strings below.
+
+RPostgreSQL::PostgreSQL():
+```{r postgres_pool_connection, eval = F}
 con = pool::dbPool(
-           DBI::dbConnect( RPostgreSQL::PostgreSQL(),
-                           dbname = "test",
-                           host = "localhost",
-                           port = "5432",
-                           user = your_dsn_uid,
-                           password = your_dsn_pwd
-                           ))
+           DBI::dbConnect( 
+             drv = RPostgreSQL::PostgreSQL(),
+             dbname = "test",
+             host = "localhost",
+             port = "5432",
+             user = your_dsn_uid,
+             password = your_dsn_pwd
+           )
+)
 ```
 
-To close your database connection, run: `pool::poolClose(con)`
+
+RPostgres::Postgres():
+```{r postgres_RPostgres_connection, eval = F}
+con <- DBI::dbConnect(
+  drv = RPostgres::Postgres(),
+  dbname = "test",
+  host = "localhost",
+  user = your_dsn_uid,
+  password = your_dsn_pwd
+  )
+```
+
+To close your database connection, run: `pool::poolClose(con)` or 
+`DBI::dbDisconnect(con)`
 
 ## Possible Future Improvements
 
-There are quite a few things I should to do to make crudr better. Maybe
-I'll get to these sometime. It really depends on whether anyone finds
-the crudr app useful.
+There are quite a few things I should to do to make crudr better. Maybe I'll get to these sometime. 
 
-1.  Support for more databases, like sqlserver, oracle, etc. (I don't
-    think it'd be that hard, I just need a test connection. If anyone
-    knows how to make a free test connection to sqlserver, or oracle, or
-    whatever other database, let me know.)
+1.  Support for more databases, like sqlserver, oracle, etc. 
 
 2.  When 2 or more admin users are making concurrent changes, update
     just the specific elements that the other person changed rather than
-    refreshing the tables.
+    refreshing the whole table.
 
-3.  At some point I should create a function like
-    'cdr_reconstruct_tbl_as_of(date = Sys.Date - 1, ignore_fields =
-    c())', where you hand a date or datetime to the function and the
+3.  Create a function 
+    "cdr_reconstruct_past_tbl(as_of = 'a prior Sys.time()')", where you hand a datetime to the function and the
     function returns a tibble of the database admin table as it was as
-    of a particular point in time.
+    of that particular point in time.
 
-4.  Figure out how to push data to the database asynchronously so the
-    user never has to wait for the data trips to the database.
+4.  Figure out how to push data to the database asynchronously.
 
-5.  Figure out how to write automatic tests for the functions, then
-    write a bunch of tests.
+5.  Write a bunch of tests for the functions.
 
-6.  Interact with someone who knows how to simplify my code, and make it
-    more readable.
-    
-7.  Row controls
+6.  Maybe add row lockout controls.
+
+

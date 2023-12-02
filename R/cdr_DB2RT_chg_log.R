@@ -26,7 +26,7 @@ cdr_DB2RT_chg_log <-function(
 
 
   cat(paste0('\n\tDownloading the deltas table ',chg_log_tbl_name,
-             ' from the database and sending it to the module server\n'))
+             ' from the database ... \n'))
   chg_log_tbl <- dplyr::tbl(conn_pool, chg_log_tbl_id) |>
     dplyr::collect()  |> dplyr::arrange(dplyr::desc(WHEN_EDITED))
   if ( !lubridate::is.POSIXct(chg_log_tbl$WHEN_EDITED) ) {
@@ -35,7 +35,7 @@ cdr_DB2RT_chg_log <-function(
       WHEN_EDITED = lubridate::ymd_hms(WHEN_EDITED, tz=Sys.timezone()))
   }
 
-  cat('\tChange-log table passed to server module:\n')
+  cat('\tChange-log table pulled from DB:\n')
   print(utils::head(chg_log_tbl,3))
   cat('\n\n')
 

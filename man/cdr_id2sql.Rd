@@ -4,10 +4,12 @@
 \alias{cdr_id2sql}
 \title{Convert a name or DBI::Id to SQL}
 \usage{
-cdr_id2sql(db_tbl_name)
+cdr_id2sql(db_tbl_name, ...)
 }
 \arguments{
 \item{db_tbl_name}{db name as text or \code{\link[=cdr_id]{cdr_id()}} object}
+
+\item{...}{other DB params like \code{schema}}
 }
 \value{
 SQL table object

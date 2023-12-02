@@ -26,7 +26,7 @@ cdr_DB2RT_primary <- function(
   db_tbl_id <- db_tbl_name
   db_tbl_name <- cdr_id2sql(db_tbl_name)
 
-  cat(paste0('\tDownloading Primary table ',db_tbl_name,' from the database and presenting it in the UI.\n'))
+  cat(paste0('\tDownloading Primary table ',db_tbl_name,' from the database ... \n'))
   db_tbl <- dplyr::tbl(conn_pool, db_tbl_id) |> dplyr::collect() |>
     dplyr::relocate(dplyr::all_of({{key_col}})) |> dplyr::arrange(!!rlang::sym({{key_col}}))
   # assign("db_tbl", db_tbl, pos = parent.frame())

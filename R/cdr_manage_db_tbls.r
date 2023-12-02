@@ -58,14 +58,15 @@ cdr_manage_db_tbls <- function(db_tbl_name,
 
     cat('\n  Sec1 - Initializing Server-module variables\n')
 
-    deltas_tbl_name <- cdr_name_delta_tbl(db_tbl_name, chg_log_suffix = chg_log_suffix)
     db_tz <- cdr_adj_timezone(conn_pool)
-    primary_table_id <- cdr_id(table = db_tbl_name, ...)
-    deltas_table_id <- cdr_id(table = deltas_tbl_name, ...)
     WHEN_EDITED <- NULL
     table_edited <- F
     last_multiuser_timechk <- Sys.time()
     user <- ifelse(is.null(session$user), Sys.info()[['user']], session$user)
+
+    primary_table_id <- cdr_id(table = db_tbl_name, ...)
+    deltas_tbl_name <- cdr_name_delta_tbl(db_tbl_name, chg_log_suffix = chg_log_suffix)
+    deltas_table_id <- cdr_id(table = deltas_tbl_name, ...)
 
 
     cat('\n  Sec1 - Creating the UI above the primary table based on add-row and delete-row permissions\n')
