@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">crudr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.26</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.27</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,20 +87,19 @@ continuously updated.</p>
 <div class="section level3">
 <h3 id="a-common-problem">A Common Problem<a class="anchor" aria-label="anchor" href="#a-common-problem"></a>
 </h3>
-<p>Each company I have worked for has different departments with
-different spreadsheets that track the same information. For instance,
-let’s say you have a bunch of store locations in your company. Ideally,
-someone in your company has all the updated information about those
-locations, e.g. the store’s mailing address, phone number, email,
-manager, manager’s email, etc. In most companies, that information
-actually resides in a lot of different places and it almost always has
-errors because managers move around, store leases expire, and the
-spreadsheets that you got from the maintainers become outdated. Further,
-Sally might be in charge of the Locations, but Jose knows the Manager
-info, etc. You need that data to be correct, joined, posted, and
-available for everyone, at any time time, but maintaining quality data
-is hard to do. This package helps to solve the distributed data updating
-and distributed data use problem.</p>
+<p>Companies often have different departments with different
+spreadsheets that track the same information. For instance, let’s say
+you have a bunch of store locations in your company. Ideally, someone in
+your company has all the updated information about those locations, e.g.
+the store’s mailing address, phone number, email, manager, manager’s
+email, etc. In most companies, that information actually resides in a
+lot of different places and the datasets almost always have errors
+because managers move around, store leases expire, etc. Further, Sally
+might be in charge of the Locations, but Jose knows the Manager info,
+etc. You need that data to be correct, joined, posted, and available for
+everyone, at any time time, but maintaining quality data is hard to do.
+This package helps to solve the distributed-data-maintenance and
+distributed-data-availability problem.</p>
 </div>
 <div class="section level3">
 <h3 id="goals-for-crudr">Goals for crudr<a class="anchor" aria-label="anchor" href="#goals-for-crudr"></a>
@@ -437,47 +436,56 @@ you.</p>
 <div class="section level3">
 <h3 id="other-useful-info">Other Useful Info<a class="anchor" aria-label="anchor" href="#other-useful-info"></a>
 </h3>
-<p>For a Postgres database connection, use
-<code>RPostgreSQL::PostgreSQL()</code> as the driver, since that’s the
-driver I tested crudr on. Example Postgres connection below.</p>
+<p>For a Postgres database connection, you can only use a
+<code>pool</code> connection with
+<code>RPostgreSQL::PostgreSQL()</code>, but
+<code>RPostgres::Postgres()</code> also works fine–just don’t wrap it in
+<code><a href="http://rstudio.github.io/pool/reference/dbPool.html" class="external-link">pool::dbPool()</a></code>.</p>
+<p><br></p>
+<p>Example Postgres connection strings below.</p>
+<p>RPostgreSQL::PostgreSQL():</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">=</span> <span class="fu">pool</span><span class="fu">::</span><span class="fu"><a href="http://rstudio.github.io/pool/reference/dbPool.html" class="external-link">dbPool</a></span><span class="op">(</span></span>
-<span>           <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span> <span class="fu">RPostgreSQL</span><span class="fu">::</span><span class="fu">PostgreSQL</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                           dbname <span class="op">=</span> <span class="st">"test"</span>,</span>
-<span>                           host <span class="op">=</span> <span class="st">"localhost"</span>,</span>
-<span>                           port <span class="op">=</span> <span class="st">"5432"</span>,</span>
-<span>                           user <span class="op">=</span> <span class="va">your_dsn_uid</span>,</span>
-<span>                           password <span class="op">=</span> <span class="va">your_dsn_pwd</span></span>
-<span>                           <span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>           <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span> </span>
+<span>             drv <span class="op">=</span> <span class="fu">RPostgreSQL</span><span class="fu">::</span><span class="fu">PostgreSQL</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>             dbname <span class="op">=</span> <span class="st">"test"</span>,</span>
+<span>             host <span class="op">=</span> <span class="st">"localhost"</span>,</span>
+<span>             port <span class="op">=</span> <span class="st">"5432"</span>,</span>
+<span>             user <span class="op">=</span> <span class="va">your_dsn_uid</span>,</span>
+<span>             password <span class="op">=</span> <span class="va">your_dsn_pwd</span></span>
+<span>           <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>RPostgres::Postgres():</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span></span>
+<span>  drv <span class="op">=</span> <span class="fu">RPostgres</span><span class="fu">::</span><span class="fu">Postgres</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  dbname <span class="op">=</span> <span class="st">"test"</span>,</span>
+<span>  host <span class="op">=</span> <span class="st">"localhost"</span>,</span>
+<span>  user <span class="op">=</span> <span class="va">your_dsn_uid</span>,</span>
+<span>  password <span class="op">=</span> <span class="va">your_dsn_pwd</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <p>To close your database connection, run:
-<code>pool::poolClose(con)</code></p>
+<code>pool::poolClose(con)</code> or
+<code>DBI::dbDisconnect(con)</code></p>
 </div>
 <div class="section level3">
 <h3 id="possible-future-improvements">Possible Future Improvements<a class="anchor" aria-label="anchor" href="#possible-future-improvements"></a>
 </h3>
 <p>There are quite a few things I should to do to make crudr better.
-Maybe I’ll get to these sometime. It really depends on whether anyone
-finds the crudr app useful.</p>
+Maybe I’ll get to these sometime.</p>
 <ol style="list-style-type: decimal">
-<li><p>Support for more databases, like sqlserver, oracle, etc. (I don’t
-think it’d be that hard, I just need a test connection. If anyone knows
-how to make a free test connection to sqlserver, or oracle, or whatever
-other database, let me know.)</p></li>
+<li><p>Support for more databases, like sqlserver, oracle, etc.</p></li>
 <li><p>When 2 or more admin users are making concurrent changes, update
 just the specific elements that the other person changed rather than
-refreshing the tables.</p></li>
-<li><p>At some point I should create a function like
-‘cdr_reconstruct_tbl_as_of(date = Sys.Date - 1, ignore_fields = c())’,
-where you hand a date or datetime to the function and the function
-returns a tibble of the database admin table as it was as of a
-particular point in time.</p></li>
-<li><p>Figure out how to push data to the database asynchronously so the
-user never has to wait for the data trips to the database.</p></li>
-<li><p>Figure out how to write automatic tests for the functions, then
-write a bunch of tests.</p></li>
-<li><p>Interact with someone who knows how to simplify my code, and make
-it more readable.</p></li>
-<li><p>Row controls</p></li>
+refreshing the whole table.</p></li>
+<li><p>Create a function “cdr_reconstruct_past_tbl(as_of = ‘a prior
+Sys.time()’)”, where you hand a datetime to the function and the
+function returns a tibble of the database admin table as it was as of
+that particular point in time.</p></li>
+<li><p>Figure out how to push data to the database
+asynchronously.</p></li>
+<li><p>Write a bunch of tests for the functions.</p></li>
+<li><p>Maybe add row lockout controls.</p></li>
 </ol>
 </div>
 </div>
