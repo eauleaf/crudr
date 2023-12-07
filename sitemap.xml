@@ -46,6 +46,9 @@
     <loc>https://eauleaf.github.io/crudr/reference/cdr_append_tbl.html</loc>
   </url>
   <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_attach_activity.html</loc>
+  </url>
+  <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_chk_uniq_id.html</loc>
   </url>
   <url>
@@ -77,6 +80,9 @@
   </url>
   <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_js_edit_ctrl.html</loc>
+  </url>
+  <url>
+    <loc>https://eauleaf.github.io/crudr/reference/cdr_label_chg_log_activity.html</loc>
   </url>
   <url>
     <loc>https://eauleaf.github.io/crudr/reference/cdr_make_db_tbls.html</loc>
