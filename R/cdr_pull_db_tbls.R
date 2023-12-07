@@ -34,7 +34,7 @@ cdr_pull_db_tbls <- function(conn_pool, db_tbl_name, chg_log_suffix = '_DELTAS',
   deltas_tbl_name <- cdr_name_delta_tbl(db_tbl_name, chg_log_suffix = chg_log_suffix)
   chg_log_tbl <- cdr_DB2RT_chg_log(conn_pool, chg_log_tbl_name = cdr_id(table = deltas_tbl_name, ...))
 
-  list(db_tbl, chg_log_tbl) |> rlang::set_names(c('primary', 'chg_log'))
+  list(db_tbl, chg_log_tbl) |> rlang::set_names(c('primary_tbl', 'chg_log_tbl'))
 
 }
 

@@ -2,10 +2,10 @@
 % Please edit documentation in R/cdr_reconstruct_past_tbl.R
 \name{cdr_reconstruct_past_tbl}
 \alias{cdr_reconstruct_past_tbl}
-\title{Build a output table as it was at a point in the past}
+\title{Build the admin table as it was at a point in the past}
 \usage{
 cdr_reconstruct_past_tbl(
-  as_of = NULL,
+  as_of = lubridate::now() - lubridate::years(x = 1),
   conn_pool,
   db_tbl_name,
   chg_log_suffix = "_DELTAS",
@@ -32,20 +32,20 @@ list with primary and change-log tables reconstructed as they were at
 a time in the past
 }
 \description{
-Build a output table as it was at a point in the past
+Build the admin table as it was at a point in the past
 }
 \examples{
 \dontrun{
 conn_pool <- pool::dbPool(
-  DBI::dbConnect( RPostgreSQL::PostgreSQL(),
+  DBI::dbConnect( drv = RPostgreSQL::PostgreSQL(),
                   dbname = "test",
                   host = "localhost",
                   port = "5432",
                   user = Sys.getenv('postgres_username'),
                   password = Sys.getenv('postgres_password'))
 )
-as_of <- lubridate::now()-lubridate::years(1)
-cdr_reconstruct_past_tbl(as_of, con, db_tbl_name = 'mtcars', schema = "test")
+cdr_reconstruct_past_tbl(conn_pool = conn_pool, db_tbl_name = 'mtcars', schema = "test")
+cdr_reconstruct_past_tbl(conn_pool = conn_pool, db_tbl_name = 'mtcars', schema = "test")
 pool::poolClose(conn_pool)
 }
 

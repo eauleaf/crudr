@@ -207,10 +207,10 @@ cdr_manage_db_tbls <- function(db_tbl_name,
 
         cat('\n  Sec3 - Run SQL to make new row in Primary table.\n')
         cdr_create_row_in_db(
-          conn_pool  = conn_pool,
-          db_tbl_name   = primary_table_id,
-          key_col       = key_col,
-          input_uid     = input_uid
+          conn_pool   = conn_pool,
+          db_tbl_name = primary_table_id,
+          key_col     = key_col,
+          input_uid   = input_uid
         )
 
 
@@ -218,7 +218,8 @@ cdr_manage_db_tbls <- function(db_tbl_name,
         to_deltas_tbl <- tibble::tibble(
           OBS_ID = input_uid,
           FIELD = key_col,
-          CHG_FROM = "",
+          # CHG_FROM = "",
+          CHG_FROM = NA_character_,
           CHG_TO = input_uid,
           WHO_EDITED = user,
           WHEN_EDITED = lubridate::now(tzone = db_tz)

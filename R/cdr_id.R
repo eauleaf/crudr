@@ -15,7 +15,7 @@
 #'
 cdr_id <- function(..., table = NULL, schema = NULL, catalog = NULL, cluster = NULL){
 
-  components <- c(cluster = cluster, catalog = catalog, schema = schema, ..., table = table)
+  components <- rlang::list2(cluster = cluster, catalog = catalog, schema = schema, ..., table = table) |> unlist()
 
   if (is.null(names(components)) || any(names(components) == "")) {
     stop("All arguments to Id() must be named.", call. = FALSE)
