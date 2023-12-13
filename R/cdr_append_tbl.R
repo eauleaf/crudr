@@ -27,7 +27,7 @@
 #'
 #' }
 #'
-cdr_append_tbl <- function(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 1000, ...){
+cdr_append_tbl <- function(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 10000, ...){
 
 
   if( is.null(db_tbl_name) ){

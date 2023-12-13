@@ -37,7 +37,7 @@ cdr_update_db_deltas_tbl <- function(conn_pool,
       conn = conn_pool,
       sql  = glue::glue('
       INSERT INTO {db_tbl_name}
-      ("OBS_ID","FIELD","CHG_FROM","CHG_TO","WHO_EDITED","WHEN_EDITED" )
+      ("OBS_ID","FIELD","CHG_FROM","CHG_TO","WHO_EDITED","WHEN_EDITED")
       VALUES (
         ?uid,
         ?field,

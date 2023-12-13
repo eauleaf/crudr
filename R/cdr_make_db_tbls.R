@@ -28,6 +28,17 @@
 #'  pool::dbListTables(conn_pool)
 #'  pool::dbRemoveTable(con, 'iris')
 #'  pool::dbRemoveTable(con, 'iris_deltas')
+#'
+#'  con <- DBI::dbConnect(
+#'  RPostgres::Postgres(),
+#'  host = "localhost",
+#'  dbname = "PG_DEV",
+#'  user = Sys.getenv("postgres_username"),
+#'  password = Sys.getenv("postgres_password")
+#'  )
+#'
+#'  cdr_make_db_tbls(con, iris, schema = 'test')
+#'
 #'}
 #'
 cdr_make_db_tbls <- function(
@@ -51,11 +62,11 @@ cdr_make_db_tbls <- function(
   chg_log_id <-  id_params_list
   chg_log_id$table <- cdr_name_delta_tbl(id_params_list$table, chg_log_suffix = chg_log_suffix)
 
-  primary_id <- cdr_id(!!!id_params_list)
-  chg_log_id <- cdr_id(!!!chg_log_id)
+  primary_id <- cdr_id(id_params_list)
+  chg_log_id <- cdr_id(chg_log_id)
+
   db_tbl_name <- DBI::dbQuoteIdentifier(DBI::ANSI(), primary_id)
   chg_log_tbl_name <- DBI::dbQuoteIdentifier(DBI::ANSI(), chg_log_id)
-
 
   if( pool::dbExistsTable(conn = conn_pool, name = primary_id) ){
     cat(glue::glue("\n\nDid not create new table for {db_tbl_name}. ",

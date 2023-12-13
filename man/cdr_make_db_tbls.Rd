@@ -52,6 +52,17 @@ Note: if you want to remove your table, these functions can be helpful:
  pool::dbListTables(conn_pool)
  pool::dbRemoveTable(con, 'iris')
  pool::dbRemoveTable(con, 'iris_deltas')
+
+ con <- DBI::dbConnect(
+ RPostgres::Postgres(),
+ host = "localhost",
+ dbname = "PG_DEV",
+ user = Sys.getenv("postgres_username"),
+ password = Sys.getenv("postgres_password")
+ )
+
+ cdr_make_db_tbls(con, iris, schema = 'test')
+
 }
 
 }

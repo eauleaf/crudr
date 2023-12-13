@@ -10,3 +10,5 @@ library(testthat)
 library(crudr)
 
 test_check("crudr")
+
+# shinytest2::test_app()

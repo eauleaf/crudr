@@ -4,7 +4,7 @@
 \alias{cdr_append_tbl}
 \title{Appends data from a dataframe into an existing database table}
 \usage{
-cdr_append_tbl(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 1000, ...)
+cdr_append_tbl(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 10000, ...)
 }
 \arguments{
 \item{db_tbl}{the dataframe to append to the database table}

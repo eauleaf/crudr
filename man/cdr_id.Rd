@@ -4,18 +4,11 @@
 \alias{cdr_id}
 \title{A drop-in replacement for \code{\link[DBI:Id]{DBI::Id()}}, but with ordered output}
 \usage{
-cdr_id(..., table = NULL, schema = NULL, catalog = NULL, cluster = NULL)
+cdr_id(...)
 }
 \arguments{
-\item{...}{other table index parameters}
-
-\item{table}{table name as string}
-
-\item{schema}{schema name as string}
-
-\item{catalog}{catalog name as string}
-
-\item{cluster}{cluster name as string}
+\item{...}{DB table index parameters, i.e. strings with with labels
+table, schema, catalog, cluster, database}
 }
 \value{
 equivalent \code{\link[DBI:Id]{DBI::Id()}} object
