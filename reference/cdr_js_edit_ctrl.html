@@ -14,7 +14,7 @@ mimic the navigation and cell editing keys of LibreCalc/Excel"><!-- mathjax --><
     
     <a class="navbar-brand me-2" href="../index.html">crudr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.29</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.30</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,7 @@ mimic the navigation and cell editing keys of LibreCalc/Excel</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cdr_js_edit_ctrl</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 	 Calling JS: cdr_js_edit_ctrl()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    --Running: cdr_js_edit_ctrl()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "// If you're on a cell and key 'Enter' or 'F2', enter edit mode\ntable.on('key', function(e, datatable, key, cell){\nconsole.log(key);\n  if ( key === 113 || key === 13 ){\n    $(cell.node()).trigger('dblclick.dt');\n  }\n});\ntable.on('keydown', 'td', function(e){\nconsole.log(e.which);\n// If you're editing a cell and press 'Tab, F2, up or down' to enter the new data\n  if (e.target.localName == 'input' &amp;&amp; [9,38,40,113].indexOf(e.keyCode) &gt; -1){\n    $(e.target).trigger('blur');\n// If you're editing a cell and press 'left, right, home, or end', perform those jumps within the cell text\n  } else if (e.target.localName == 'input' &amp;&amp; [35,36,37,39].indexOf(e.keyCode) &gt; -1) {\n    e.stopPropagation();\n// If you're editing a cell and then press 'escape', remove any User changes\n  } else if (e.target.localName == 'input' &amp;&amp; e.keyCode === 27) {\n    e.stopPropagation();\n    var prior_val = table.cell( this ).data();\n    $(e.target).val( prior_val );\n    $(e.target).trigger('blur');\n// If you're editing a cell and press 'enter', mimic the downarrow\n  } else if (e.target.localName == 'input' &amp;&amp; e.keyCode === 13 ) {\n    e.stopPropagation();\n    $(e.target).trigger('blur');\n  }\n});"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "JS_EVAL"</span>
