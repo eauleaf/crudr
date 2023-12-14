@@ -21,19 +21,20 @@ cdr_DB2RT_primary <- function(
     key_col
 ) {
 
-  cat('\n--Running: cdr_DB2RT_primary()\n')
+  cat('\n   --Running: cdr_DB2RT_primary()')
 
   db_tbl_id <- db_tbl_name
   db_tbl_name <- cdr_id2sql(db_tbl_name)
 
-  cat(paste0('\tDownloading Primary table ',db_tbl_name,' from the database ... \n'))
+  cat(paste0('\n\tDownloading Primary table ',db_tbl_name,' from the database ... '))
   db_tbl <- dplyr::tbl(conn_pool, db_tbl_id) |> dplyr::collect() |>
     dplyr::relocate(dplyr::all_of({{key_col}})) |> dplyr::arrange(!!rlang::sym({{key_col}}))
   # assign("db_tbl", db_tbl, pos = parent.frame())
-  cat(paste("\tUID for table",db_tbl_name,"is:", key_col))
-  cat(paste0('\tPrimary DB table for ',db_tbl_name,' passed to server module.\n'))
+  cat(paste("\n\tUID for table",db_tbl_name,"is:", key_col))
+  cat(paste0('\n\tPrimary DB table for ',db_tbl_name,' passed to server module.'))
+  cat('\n\tTable produced:\n')
   print(utils::head(db_tbl,3))
-  cat('\n\n')
+  # cat('\n')
 
   return(db_tbl)
 

@@ -5,11 +5,13 @@
 #' @param db_tbl the dataframe to append to the database table
 #' @param conn_pool a database connection of class `pool` or `DBI`
 #' @param db_tbl_name the name of the database table if different from the name
-#'   of the dataframe passed to 'db_tbl'; can alternatively accept a [DBI::Id()] or object
-#' @param chunk_size the maximum number of elements you want to pass to the DB in one go
-#'  (i.e. if you have a huge dataframe with 100 columns and 10,000 rows, a
-#'  chunk_size of 1000 elements would split the dataframe into 1000 groups and
-#'  append each group successively.)
+#'   of the dataframe passed to 'db_tbl'; can alternatively accept a [DBI::Id()]
+#'   or object
+#' @param chunk_size the maximum number of cells you want to pass to the DB in
+#'   one go (i.e. if you have a dataframe with 100 columns and 10,000 rows, a
+#'   chunk_size of 1000 elements would split the dataframe into 1000 SQL query
+#'   groups and append each group successively. Default is an estimate for the
+#'   number of cells that makes ~1,000,000 bytes.)
 #' @param ... other args specifying a DB table such as `schema = 'my_schema'`
 #'
 #' @return invisibly returns the SQL INSERT statements
@@ -27,8 +29,15 @@
 #'
 #' }
 #'
-cdr_append_tbl <- function(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 10000, ...){
+cdr_append_tbl <- function(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = NULL, ... ){
 
+  # determine a default chunk size
+  if(is.null(chunk_size)){
+    bytes_per_chunk <- 1000000
+    obj_size <- utils::object.size(db_tbl)
+    obj_cells <- prod(dim(db_tbl))
+    chunk_size = as.integer(obj_cells/obj_size*bytes_per_chunk)
+    }
 
   if( is.null(db_tbl_name) ){
   # if no 'db_tbl_name' supplied, use the user's "db_tbl" name
@@ -52,19 +61,21 @@ cdr_append_tbl <- function(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 1
 
 
   # write SQL statements to append tables
-  cat(glue::glue("Appending data to the database table {db_tbl_name} with the SQL statement truncated below:"),fill = TRUE)
+  cat(glue::glue("Appending data to the database table {db_tbl_name} with the
+                 SQL statement truncated below:"),fill = TRUE)
   sql_queries <- chunked_df |>
     purrr::map(\(.) pool::sqlAppendTable(DBI::ANSI(), table=db_table_id, values = .)) |>
     suppressWarnings()
   cat(paste(stringr::str_extract(paste(sql_queries[[1]],'\n'), '(?:.*\\n){1,5}'),'... \n\n'))
 
   row_counts <- chunked_df |> purrr::map(nrow)
-  purrr::map2(.x = sql_queries, .y = row_counts,
-              .f = \(.x,.y) {
-                cat('Sending data chunk to database ...', fill = TRUE)
-                pool::dbExecute(conn = conn_pool, statement = .x)
-                cat(glue::glue("Appended {.y} rows to database table {db_tbl_name}."), fill = TRUE)
-              })
+  purrr::map2(
+    .x = sql_queries, .y = row_counts,
+    .f = \(.x,.y) {
+      cat('Sending data chunk to database ...', fill = TRUE)
+      pool::dbExecute(conn = conn_pool, statement = .x)
+      cat(glue::glue("Appended {.y} rows to database table {db_tbl_name}."), fill = TRUE)
+    })
 
 
   return(invisible(sql_queries))

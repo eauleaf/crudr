@@ -16,7 +16,7 @@ cdr_update_db_deltas_tbl <- function(conn_pool,
                                      db_tzone = cdr_adj_timezone(conn_pool)
                                      ){
 
-  cat('\n--Running: cdr_update_db_deltas_tbl()\n')
+  cat('\n   --Running: cdr_update_db_deltas_tbl()')
 
   db_tbl_name <- cdr_id2sql(db_tbl_name)
   db_type <- cdr_which_db(conn_pool)
@@ -32,7 +32,7 @@ cdr_update_db_deltas_tbl <- function(conn_pool,
   }
 
 
-  cat('\nUsing this SQL statement to append fields to the DB deltas table:\n')
+  cat('\n\tUsing this SQL statement to append fields to the DB deltas table:\n')
   sql_stmt <- pool::sqlInterpolate(
       conn = conn_pool,
       sql  = glue::glue('

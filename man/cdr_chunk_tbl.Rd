@@ -4,7 +4,7 @@
 \alias{cdr_chunk_tbl}
 \title{break a dataframe into a list of dataframes}
 \usage{
-cdr_chunk_tbl(db_tbl, chunk_size = 1000)
+cdr_chunk_tbl(db_tbl, chunk_size = 10000)
 }
 \arguments{
 \item{db_tbl}{a dataframe}

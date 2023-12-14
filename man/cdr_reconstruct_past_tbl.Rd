@@ -5,7 +5,7 @@
 \title{Build the admin table as it was at a point in the past}
 \usage{
 cdr_reconstruct_past_tbl(
-  as_of = lubridate::now() - lubridate::years(x = 1),
+  as_of = lubridate::now() - lubridate::weeks(x = 4),
   conn_pool,
   db_tbl_name,
   chg_log_suffix = "_DELTAS",

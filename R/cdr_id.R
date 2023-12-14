@@ -13,8 +13,13 @@
 #'
 cdr_id <- function(...){
 
-
   components <- orderIdParams(...)
+
+  if (is.null(names(components)) || any(names(components) == "")) {
+    stop("All arguments to `cdr_id()` must be named.
+         Try assigning database input names like table, schema, catalog, etc.",
+         call. = FALSE)
+  }
 
   methods::new(Class = structure("Id", package = "DBI"), name = components)
 

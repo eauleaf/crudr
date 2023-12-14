@@ -7,7 +7,7 @@
 #' @examples cdr_js_edit_ctrl()
 cdr_js_edit_ctrl <- function(){
 
-  cat('\n\t Calling JS: cdr_js_edit_ctrl()\n')
+  cat('\n   --Running: cdr_js_edit_ctrl()')
 
   js <- c(
 
@@ -41,6 +41,7 @@ cdr_js_edit_ctrl <- function(){
   )
 
   # print(js)
+  cat('\n')
 
   DT::JS(js)
 

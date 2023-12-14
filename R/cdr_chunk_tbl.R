@@ -17,7 +17,7 @@
 #' chunked_df <- crudr:::cdr_chunk_tbl(as.matrix(iris), 0)
 #' chunked_df <- crudr:::cdr_chunk_tbl(mtcars, 100)
 #'
-cdr_chunk_tbl <- function(db_tbl, chunk_size = 1000){
+cdr_chunk_tbl <- function(db_tbl, chunk_size = 10000){
 
   checkmate::assert_int(chunk_size, na.ok = FALSE)
   db_tbl <- tibble::tibble(db_tbl)

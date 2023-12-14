@@ -28,8 +28,8 @@
 #' cdr_join_tbls(primary_r_tbl, chg_log_r_tbl, key_col = 'UID')
 #'
 cdr_join_tbls <- function(db_tbl, chg_log_tbl, key_col){
-  cat('\n--Running: cdr_join_tbls()\n')
-  cat('\n Combine or Recombine primary and delta tables for interface \n\n')
+  cat('\n   --Running: cdr_join_tbls()')
+  cat('\n\t Combine or Recombine primary and delta tables for UI.')
 
   OBS_ID <- WHO_EDITED <- WHEN_EDITED <- NULL
 

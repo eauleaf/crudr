@@ -16,8 +16,8 @@ cdr_create_row_in_db <- function(conn_pool, db_tbl_name, key_col, input_uid){
 
   db_tbl_name <- cdr_id2sql(db_tbl_name)
 
-  cat('\n--Running: cdr_create_row_in_db()\n')
-  cat(glue::glue("\nCreating new record {input_uid} in {key_col} for table {db_tbl_name}:\n"))
+  cat('\n   --Running: cdr_create_row_in_db()')
+  cat('\n',glue::glue("Creating new record {input_uid} in {key_col} for table {db_tbl_name}:"))
 
 
   sql_stmt <-

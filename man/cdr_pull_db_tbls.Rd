@@ -2,7 +2,8 @@
 % Please edit documentation in R/cdr_pull_db_tbls.R
 \name{cdr_pull_db_tbls}
 \alias{cdr_pull_db_tbls}
-\title{Collect both tables (admin & chg-log) from the DB}
+\title{Collect both tables (admin & chg-log) from the DB, join them in a user view,
+and return all 3 tables in a list}
 \usage{
 cdr_pull_db_tbls(
   conn_pool,
@@ -21,13 +22,14 @@ cdr_pull_db_tbls(
 
 \item{key_field}{column in the primary table that acts as the unique row identifier}
 
-\item{...}{other DB params like \code{schema}}
+\item{...}{other database pointer params like \code{schema}}
 }
 \value{
-a list with primary and change-log tables as elements
+a list with primary (admin), change-log, and end-user view tables as list elements
 }
 \description{
-Collect both tables (admin & chg-log) from the DB
+Collect both tables (admin & chg-log) from the DB, join them in a user view,
+and return all 3 tables in a list
 }
 \examples{
 \dontrun{

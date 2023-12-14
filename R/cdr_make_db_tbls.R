@@ -46,7 +46,7 @@ cdr_make_db_tbls <- function(
     make_deltas_tbl = TRUE,
     chg_log_suffix = '_DELTAS',
     ... ){
-  cat('\n--Running: cdr_make_db_tbls()\n')
+  cat('\n   --Running: cdr_make_db_tbls()\n')
 
   stor_sym <- rlang::enquo(db_tbl)
   id_params_list <- list(...)

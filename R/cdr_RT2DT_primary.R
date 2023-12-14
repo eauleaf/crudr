@@ -12,6 +12,8 @@
 #'
 cdr_RT2DT_primary <- function(db_tbl, cell_edit_permission, lock_fields = c() ){
 
+  cat('\n   --Running: cdr_RT2DT_primary()')
+
   out <- db_tbl |>
     DT::datatable(
       options = list(scrollX = TRUE,  keys = TRUE),

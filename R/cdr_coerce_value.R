@@ -13,12 +13,17 @@
 #' }
 
 cdr_coerce_value <- function(input_val, old_mem_val){
-  cat('\n--Running: cdr_coerce_value()\n')
+  cat('\n   --Running: cdr_coerce_value()')
 
   safe_coersion <- purrr::possibly(.f = DT::coerceValue, otherwise = NA)
 
-
   if(is.character(input_val)){ input_val <- stringr::str_trim(input_val) }
+
+  cat('\n\t New input is:',paste(input_val))
+  cat('\n\t With class:',class(input_val))
+  cat('\n\t Prior value is:',paste(old_mem_val))
+  cat('\n\t With class:',class(old_mem_val))
+  cat('\n\t Attempting coersion via DT::coerceValue().')
 
 
   if(!rlang::is_logical(old_mem_val)){
@@ -37,7 +42,8 @@ cdr_coerce_value <- function(input_val, old_mem_val){
 
   }
 
-  cat('\t Value coerced.\n')
+  cat('\n\t  -Value coerced to: ', out)
+  cat('\n\t  -With class: ', class(out),'\n')
   return(out)
 
 }

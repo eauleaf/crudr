@@ -16,15 +16,15 @@
 #' @return text to display in the UI
 #'
 cdr_chk_uniq_id <- function(db_tbl, input_uid, key_column, chk_for = c('create', 'delete')){
-  cat('\n--Running: cdr_chk_uniq_id()\n')
+  cat('\n   --Running: cdr_chk_uniq_id()\n')
 
   chk_for <- tolower(chk_for[1])
 
-  if ( chk_for == 'create' & toupper(input_uid) %in% toupper(db_tbl[[key_column]]) ){
+  if ( chk_for == 'create' && toupper(input_uid) %in% toupper(db_tbl[[key_column]]) ){
     return(glue::glue('Your entry "{input_uid}" is NOT unique. To CREATE a new row, please enter an ID unique to field \'{key_column}\'.'))
-  } else if( chk_for == 'create' & input_uid == '' ){
+  } else if( chk_for == 'create' && input_uid == '' ){
     return(paste0("Your unique ID entry is blank. To CREATE a new row, please enter a unique ID into field '", key_column,"'."))
-  } else if( chk_for == 'delete' & !(input_uid %in% db_tbl[[key_column]] )){
+  } else if( chk_for == 'delete' && !(input_uid %in% db_tbl[[key_column]] )){
     return(glue::glue('Your entry "{input_uid}" is NOT an ID in field \'{key_column}\'. To delete a row, please type the unique identifier exactly as it is in \'{key_column}\'.'))
   } else {
 

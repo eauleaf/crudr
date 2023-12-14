@@ -23,7 +23,7 @@
 #' }
 #'
 cdr_trunc_tbl<- function(conn_pool, db_tbl_name = NULL, removal = c('truncate','delete'), ...){
-  cat('\n--Running: cdr_trunc_tbl()\n')
+  cat('\n   --Running: cdr_trunc_tbl()\n')
 
   if(inherits(db_tbl_name, 'Id')){
     db_table_id <- db_tbl_name

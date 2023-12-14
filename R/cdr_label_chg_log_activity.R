@@ -24,7 +24,8 @@ cdr_label_chg_log_activity <- function(chg_log, key_field = 'UID'){
   if('ACTIVITY' %in% names(chg_log)){
     split_clog <- chg_log |> split(f = is.na(chg_log$ACTIVITY))
     split_clog[['TRUE']] <- split_clog[['TRUE']] |> cdr_attach_activity(key_field = key_field)
-    out <- dplyr::bind_rows(split_clog[['TRUE']], split_clog[['FALSE']]) |> dplyr::arrange(dplyr::desc(WHEN_EDITED))
+    out <- dplyr::bind_rows(split_clog[['TRUE']], split_clog[['FALSE']]) |>
+      dplyr::arrange(dplyr::desc(WHEN_EDITED))
   } else {
     out <- chg_log |> cdr_attach_activity(key_field = key_field)
   }
@@ -48,13 +49,17 @@ cdr_attach_activity <- function(chg_log, key_field = 'UID'){
   CHG_FROM <- CHG_TO <- OBS_ID <- FIELD <- WHEN_EDITED <- ACTIVITY <- NULL
 
   chg_log |>
+    dplyr::ungroup() |>
     dplyr::mutate(
       ACTIVITY = dplyr::case_when(
-        FIELD == key_field & (!is.na(CHG_TO)  | nchar(CHG_TO) > 0)  ~ 'created',
-        FIELD == key_field & (is.na(CHG_FROM) | nchar(CHG_FROM))  ~ 'deleted'
+        FIELD == key_field & # is key field
+          (is.na(CHG_FROM) | nchar(CHG_FROM) == 0) & # from nothing
+          (!is.na(CHG_TO)  | nchar(CHG_TO) > 0) ~ 'created', # to something
+        FIELD == key_field &  # is key field
+          (!is.na(CHG_FROM) | nchar(CHG_FROM) > 0) & # from something
+          ( is.na(CHG_TO)   | nchar(CHG_TO) == 0)  ~ 'deleted' # to nothing
       )
-    ) |>
-    dplyr::group_by(WHEN_EDITED, OBS_ID) |>
+    ) |> dplyr::group_by(WHEN_EDITED, OBS_ID) |>
     tidyr::fill(ACTIVITY, .direction = "downup") |>
     dplyr::ungroup() |>
     dplyr::mutate(

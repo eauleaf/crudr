@@ -1,6 +1,6 @@
 Package: crudr
 Title: Simplifies CRUD tasks including tracking changes of a db table
-Version: 0.0.1.29
+Version: 0.0.1.30
 Authors@R: c(
     person("eau", "leaf", email = "eau.leaf@gmail.com", role = c("aut", "cre")),
     person("beevabeeva", role = c("ctb"))

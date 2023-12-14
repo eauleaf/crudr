@@ -12,7 +12,7 @@
 #' @examples crudr:::cdr_row_editor_html('hello', 'iris', TRUE, TRUE)
 cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_row_permission = F){
 
-  cat('\n--Running: cdr_row_editor_html()\n')
+  cat('\n   --Running: cdr_row_editor_html()')
 
   ns <- shiny::NS(id)
   html_style <- "display: inline-flex; align-items: center; font-size: 10px;"
@@ -22,8 +22,8 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
   html_red_text_output <- shiny::span(notes_txt, style = "color:red; font-size: 130%; margin-left: 15px;")
 
 
-  if (add_row_permission & del_row_permission) {
-      cat('\n--Granting permissions: add and delete rows \n')
+  if (add_row_permission && del_row_permission) {
+      cat('\n\tGranting user permissions: add and delete rows. ')
       shiny::tags$span(style=html_style,
                        html_for_uid_box,
                        html_btn_to_create_row,
@@ -32,7 +32,7 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
                        )
 
   } else if (add_row_permission) {
-      cat('\n--Granting permissions: add rows only \n')
+      cat('\n\tGranting user permission: add rows only. ')
       shiny::tags$span(style=html_style,
                        html_for_uid_box,
                        html_btn_to_create_row,
@@ -40,7 +40,7 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
       )
 
   } else if (del_row_permission){
-      cat('\n--Granting permissions: delete rows only \n')
+      cat('\n\tGranting user permission: delete rows only. ')
     shiny::tags$span(style=html_style,
                      html_for_uid_box,
                      html_btn_to_delete_row,
@@ -48,7 +48,7 @@ cdr_row_editor_html <- function(notes_txt = '', id, add_row_permission = F, del_
     )
 
   } else {
-      cat('\n--Granting permissions: no add/delete rows \n')
+      cat('\n\tGranting no user row-add/row-delete permissions. ')
     ' '
 
   }

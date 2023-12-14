@@ -18,11 +18,11 @@ cdr_update_db_primary_tbl <- function(conn_pool  = conn_pool,
                                       value_rowuid  = NULL,
                                       key_column    = NULL
 ){
-  cat('\n--Running: cdr_update_db_primary_tbl()\n')
+  cat('\n   --Running: cdr_update_db_primary_tbl()\n')
 
   db_tbl_name <- cdr_id2sql(db_tbl_name)
 
-  if (!is.na(update_value) & lubridate::is.POSIXct(update_value)){
+  if (!is.na(update_value) && lubridate::is.POSIXct(update_value)){
     update_value <- paste(lubridate::ymd_hms(update_value)) # already UTC
   } else if( rlang::is_logical(update_value) ){
     update_value <- as.character(update_value)

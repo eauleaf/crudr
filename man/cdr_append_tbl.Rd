@@ -4,7 +4,7 @@
 \alias{cdr_append_tbl}
 \title{Appends data from a dataframe into an existing database table}
 \usage{
-cdr_append_tbl(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 10000, ...)
+cdr_append_tbl(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = NULL, ...)
 }
 \arguments{
 \item{db_tbl}{the dataframe to append to the database table}
@@ -12,12 +12,14 @@ cdr_append_tbl(db_tbl, conn_pool, db_tbl_name = NULL, chunk_size = 10000, ...)
 \item{conn_pool}{a database connection of class \code{pool} or \code{DBI}}
 
 \item{db_tbl_name}{the name of the database table if different from the name
-of the dataframe passed to 'db_tbl'; can alternatively accept a \code{\link[DBI:Id]{DBI::Id()}} or object}
+of the dataframe passed to 'db_tbl'; can alternatively accept a \code{\link[DBI:Id]{DBI::Id()}}
+or object}
 
-\item{chunk_size}{the maximum number of elements you want to pass to the DB in one go
-(i.e. if you have a huge dataframe with 100 columns and 10,000 rows, a
-chunk_size of 1000 elements would split the dataframe into 1000 groups and
-append each group successively.)}
+\item{chunk_size}{the maximum number of cells you want to pass to the DB in
+one go (i.e. if you have a dataframe with 100 columns and 10,000 rows, a
+chunk_size of 1000 elements would split the dataframe into 1000 SQL query
+groups and append each group successively. Default is an estimate for the
+number of cells that makes ~1,000,000 bytes.)}
 
 \item{...}{other args specifying a DB table such as \code{schema = 'my_schema'}}
 }
